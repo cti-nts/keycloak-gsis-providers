@@ -9,20 +9,20 @@ import org.keycloak.models.KeycloakSession;
 
 /** */
 @AutoService(SocialIdentityProviderFactory.class)
-public class GsisGovuserTestIdentityProviderFactory
-    extends AbstractIdentityProviderFactory<GsisGovuserTestIdentityProvider>
-    implements SocialIdentityProviderFactory<GsisGovuserTestIdentityProvider> {
+public class GsisTaxisIdentityProviderFactory
+    extends AbstractIdentityProviderFactory<GsisTaxisIdentityProvider>
+    implements SocialIdentityProviderFactory<GsisTaxisIdentityProvider> {
 
-  public static final String PROVIDER_ID = "gsis-govuser-test";
+  public static final String PROVIDER_ID = "gsis-taxis";
 
   @Override
   public String getName() {
-    return "GsisGovuserTest";
+    return "GsisTaxis";
   }
 
   @Override
-  public GsisGovuserTestIdentityProvider create(KeycloakSession session, IdentityProviderModel model) {
-    return new GsisGovuserTestIdentityProvider(session, new OAuth2IdentityProviderConfig(model));
+  public GsisTaxisIdentityProvider create(KeycloakSession session, IdentityProviderModel model) {
+    return new GsisTaxisIdentityProvider(session, new OAuth2IdentityProviderConfig(model));
   }
 
   @Override

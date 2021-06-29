@@ -7,22 +7,22 @@ import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 
 /** */
 @JBossLog
-public class GsisGovuserTestIdentityProvider extends GsisAbstractIdentityProvider
+public class GsisGovuserIdentityProvider extends GsisAbstractIdentityProvider
     implements SocialIdentityProvider {
 
-  public static final String AUTH_URL = "https://test.gsis.gr/oauth2servergov/oauth/authorize";
+  public static final String AUTH_URL = "https://www1.gsis.gr/oauth2servergov/oauth/authorize";
 
-  public static final String TOKEN_URL = "https://test.gsis.gr/oauth2servergov/oauth/token";
+  public static final String TOKEN_URL = "https://www1.gsis.gr/oauth2servergov/oauth/token";
 
   public static final String DEFAULT_SCOPE = "";
 
   private static final String USER_INFO_URL =
-      "https://test.gsis.gr/oauth2servergov/userinfo?format=xml";
+      "https://www1.gsis.gr/oauth2servergov/userinfo?format=xml";
 
   private static final String LOGOUT_URL =
-      "https://test.gsis.gr/oauth2servergov/logout/{clientId}/";
+      "https://www1.gsis.gr/oauth2servergov/logout/{clientId}/";
 
-  public GsisGovuserTestIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
+  public GsisGovuserIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
     super(session, config);
   }
 
