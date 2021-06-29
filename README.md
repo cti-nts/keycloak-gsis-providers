@@ -8,10 +8,10 @@ This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin add
 
 ## Implemented identity providers
 
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> testing environmet (gsis-taxis-test)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> production environmet (gsis-taxis)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> testing environmet (gsis-govuser-test)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> production environmet (gsis-govuser)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> testing environment (gsis-taxis-test)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> production environment (gsis-taxis)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> testing environment (gsis-govuser-test)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> production environment (gsis-govuser)
 
 ## How to get permissions for using Gsis OAuth 2.0 authentication services for your application
 
@@ -23,11 +23,11 @@ After your request to KE.D is approved you will be given a clientId and a client
 
 **Quick**: Download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">latest release</a> jar from Releases page. Then deploy it into ```$KEYCLOAK_HOME/standalone/deployments/``` directory.
 
-You will need a functional Keycloak deployment. You can read <a href="https://www.keycloak.org/docs/latest/getting_started/" target="_blank">Keycloak getting started guide</a> for instructions on setting up a keycloak instance. You can also <a href="https://www.keycloak.org/getting-started/getting-started-docker" target="_blank">run Keycloak as a Docker Container</a> , or deploy Keycloak on Kubernetes via <a href="https://www.keycloak.org/getting-started/getting-started-kube" target="_blank">plain manifest</a> or using the <a href="https://www.keycloak.org/getting-started/getting-started-operator-kubernetes" target="_blank">Keycloak Operator</a>. 
+You will need a functional Keycloak deployment. You can read <a href="https://www.keycloak.org/docs/latest/getting_started/" target="_blank">Keycloak getting started guide</a> for instructions on setting up a Keycloak instance. You can also <a href="https://www.keycloak.org/getting-started/getting-started-docker" target="_blank">run Keycloak as a Docker Container</a> , or deploy Keycloak on Kubernetes via <a href="https://www.keycloak.org/getting-started/getting-started-kube" target="_blank">plain manifest</a> or using the <a href="https://www.keycloak.org/getting-started/getting-started-operator-kubernetes" target="_blank">Keycloak Operator</a>. 
 
-After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release</a> jar and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documnetation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension wthrough Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
+After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release</a> jar and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documentation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension wthrough Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
 
-After succesfully installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
+After successfully installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
 
 - GsisTaxisTest (TAXISnet testing)
 - GsisTaxis (TAXISnet production)
@@ -55,4 +55,3 @@ Apache License, Version 2.0
 
 Built for the needs of [Greek School Network and Networking Technologies Directorate](http://nts.cti.gr/). 
 Based on [this sample extension](https://github.com/xgp/keycloak-moneybird-idp) by [xgp](https://github.com/xgp).
-
