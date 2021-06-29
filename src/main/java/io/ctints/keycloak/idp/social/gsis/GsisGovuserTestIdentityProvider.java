@@ -61,7 +61,7 @@ public class GsisGovuserTestIdentityProvider extends AbstractOAuth2IdentityProvi
     String username = getJsonProperty(profile, "taxid");
     user.setUsername(username);
     user.setName(getJsonProperty(profile, "firstname")+" "+getJsonProperty(profile, "lastname"));
-    user.setEmail("notprovided@noemail.gr");
+    user.setEmail("");
     user.setIdpConfig(getConfig());
     user.setIdp(this);
 
