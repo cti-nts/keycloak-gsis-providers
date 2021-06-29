@@ -21,6 +21,8 @@ After your request to KE.D is approved you will be given a clientId and a client
 
 ## How to install Keycloak Gsis Providers extension 
 
+**Quick**: Download keycloak-gsis-providers-<version>.jar from Releases page. Then deploy it into $KEYCLOAK_HOME/standalone/deployments/ directory.
+
 You will need a functional Keycloak deployment. You can read <a href="https://www.keycloak.org/docs/latest/getting_started/" target="_blank">Keycloak getting started guide</a> for instructions on setting up a keycloak instance. You can also <a href="https://www.keycloak.org/getting-started/getting-started-docker" target="_blank">run Keycloak as a Docker Container</a> , or deploy Keycloak on Kubernetes via <a href="https://www.keycloak.org/getting-started/getting-started-kube" target="_blank">plain manifest</a> or using the <a href="https://www.keycloak.org/getting-started/getting-started-operator-kubernetes" target="_blank">Keycloak Operator</a>. 
 
 After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release jar</a> and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documnetation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension wthrough Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
