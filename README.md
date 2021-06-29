@@ -1,6 +1,6 @@
 # Keycloak Gsis Providers
 
-This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds production and testing identity providers for using <a href="https://gsis.gr/en" target="_blank">Greek Public Administration</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
+This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds production and testing identity providers for using <a href="https://gsis.gr/en" target="_blank">Greek General Secretariat of Information Systems for Public Administration (GSIS)</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
 
 <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> is an open source Identity and Access Management solution aimed at modern applications and services. It makes it easy to secure applications and services with little to no code. 
 
