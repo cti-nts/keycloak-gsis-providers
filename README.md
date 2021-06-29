@@ -19,7 +19,7 @@ In order to be able to use Gsis OAuth 2.0 authentication services you need to re
 
 After your request to KE.D is approved you will be given a clientId and a clientSecret for connectiong your application with Gsis OAuth2.0 providers.
 
-## How to install Keycloak Gsis Providers extension 
+## Install
 
 **Quick**: Download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">latest jar</a> from Releases page. Then deploy it into $KEYCLOAK_HOME/standalone/deployments/ directory.
 
@@ -27,13 +27,32 @@ You will need a functional Keycloak deployment. You can read <a href="https://ww
 
 After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release jar</a> and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documnetation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension wthrough Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
 
-## How to use Keycloak Gsis Providers extension
-
-After installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
+After succesfully installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
 
 - GsisTaxisTest (TAXISnet testing)
 - GsisTaxis (TAXISnet production)
 - GsisGovuserTest (Employees testing)
 - GsisGovUser (Employees production)
 
-Select the one you want to use and fill in the settings form with the appropriate info and credentials for your application. See the <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker" target="_blank">Identity Brokering section of Keycloak Server Admin</a> for more info. 
+## Setup
+
+- Add the Gsis Identity Provider you want to use in the realm which you want to configure.
+- In the Gsis identity provider page, set Client Id and Client Secret.
+- (Optional) Set the alias for the provider and other options if you want.
+
+See the <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker" target="_blank">Identity Brokering section of Keycloak Server Admin</a> for more info. 
+
+## Source Build
+
+Clone this repository and run mvn package. You can see keycloak-gsis-providers-{vesrion}.jar under target directory.
+
+## Licence
+
+Apache License, Version 2.0
+
+## Author
+- [Konstantinos Togias](https://github.com/ktogias)
+
+Built for the needs of [Greek School Network and Networking Technologies Directorate](http://nts.cti.gr/). 
+Based on [this sample extension](https://github.com/xgp/keycloak-moneybird-idp) by [xgp](https://github.com/xgp).
+
