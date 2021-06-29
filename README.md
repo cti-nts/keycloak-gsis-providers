@@ -44,7 +44,7 @@ See the <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_i
 
 ## Source Build
 
-Clone this repository and run mvn package. You can see keycloak-gsis-providers-{vesrion}.jar under target directory.
+Clone this repository and run ```mvn package```. You can see ```keycloak-gsis-providers-{vesrion}.jar``` under target directory.
 
 ## Licence
 
