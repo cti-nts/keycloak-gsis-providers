@@ -56,12 +56,12 @@ public class GsisGovuserTestIdentityProvider extends AbstractOAuth2IdentityProvi
       EventBuilder event, JsonNode profile) {
     log.infof("profile %s", jsonString(profile));
 
-    BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "id"));
+    BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "userid"));
 
     String username = getJsonProperty(profile, "taxid");
     user.setUsername(username);
-    user.setName(getJsonProperty(profile, "firstname")+getJsonProperty(profile, "lastname"));
-    //user.setEmail(getJsonProperty(profile, "email"));
+    user.setName(getJsonProperty(profile, "firstname")+" "+getJsonProperty(profile, "lastname"));
+    user.setEmail("notprovided@noemail.gr");
     user.setIdpConfig(getConfig());
     user.setIdp(this);
 
