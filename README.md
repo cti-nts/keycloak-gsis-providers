@@ -15,7 +15,7 @@ This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin add
 
 ## How to get permissions for using Gsis OAuth 2.0 authentication services for your application
 
-In order to be able to use Gsis OAuth 2.0 authentication services you need to request permission from Greek Public Administration. Instructions can be found at <a href="https://www.gsis.gr/en/public-administration/ked" target="_blank">Interoperability Center of the Ministry of Digital Governance (KE.D) web site</a>. 
+In order to be able to use Gsis OAuth 2.0 authentication services you need to request permission from GSIS. Instructions can be found at <a href="https://www.gsis.gr/en/public-administration/ked" target="_blank">Interoperability Center of the Ministry of Digital Governance (KE.D) web site</a>. 
 
 After your request to KE.D is approved you will be given a clientId and a clientSecret for connectiong your application with Gsis OAuth2.0 providers.
 
