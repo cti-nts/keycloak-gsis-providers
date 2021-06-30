@@ -1,5 +1,9 @@
 # Keycloak Gsis Providers
 
+**IMPORTANT NOTICE:** 
+
+**GSIS does NOT ALLOW using its authentication services for connecting or implemneting SSO with third applications OTHER THAN THE ONE you have requested and granded the access for. Using this plugin for providing identification and authorization data to applications other than the one you requested is against the service licence provided by GSIS and WILL RESULT TO REVOKE YOUR ACCESS TO THE SERVICE.**   
+
 This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds production and testing identity providers for using <a href="https://gsis.gr/en" target="_blank">Greek General Secretariat of Information Systems for Public Administration (GSIS)</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
 
 <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> is an open source Identity and Access Management solution aimed at modern applications and services. It makes it easy to secure applications and services with little to no code. 
