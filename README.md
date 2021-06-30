@@ -39,8 +39,22 @@ After successfully installing the extension the following options will be availa
 - Add the Gsis Identity Provider you want to use in the realm which you want to configure.
 - In the Gsis identity provider page, set Client Id and Client Secret.
 - (Optional) Set the alias for the provider and other options if you want.
+- (Optional) Set up provider mappers (See profile fields)
 
 See the <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker" target="_blank">Identity Brokering section of Keycloak Server Admin</a> for more info. 
+
+### Profile Fields
+
+Gsis OAuth 2.0 service provides the following profile fields for **individuals**:
+- userid
+- taxid
+- lastname
+- firstname
+- fathername
+- mothername
+- birthyear
+
+Select ```Attribute Importer``` as ```Mapper Type``.
 
 ## Source Build
 
