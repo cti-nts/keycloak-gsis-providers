@@ -54,7 +54,7 @@ Gsis OAuth 2.0 service provides the following profile fields for **individuals**
 - mothername
 - birthyear
 
-Select ```Attribute Importer``` as ```Mapper Type``.
+Select ```Attribute Importer``` as ```Mapper Type```.
 
 ## Source Build
 
