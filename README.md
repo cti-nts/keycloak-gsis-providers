@@ -1,9 +1,5 @@
 # Keycloak Gsis Providers
 
-**IMPORTANT NOTICE:** 
-
-**GSIS does NOT ALLOW using its authentication services for connecting or implemneting SSO with third applications OTHER THAN THE ONE you have requested and granded the access for. Using this plugin for providing identification and authorization data to applications other than the one you requested is against the service licence provided by GSIS and WILL RESULT TO REVOKE YOUR ACCESS TO THE SERVICE.**   
-
 This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds production and testing identity providers for using <a href="https://gsis.gr/en" target="_blank">Greek General Secretariat of Information Systems for Public Administration (GSIS)</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
 
 <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> is an open source Identity and Access Management solution aimed at modern applications and services. It makes it easy to secure applications and services with little to no code. 
@@ -22,6 +18,10 @@ This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin add
 In order to be able to use Gsis OAuth 2.0 authentication services you need to request permission from GSIS. Instructions can be found at <a href="https://www.gsis.gr/en/public-administration/ked" target="_blank">Interoperability Center of the Ministry of Digital Governance (KE.D) web site</a>. 
 
 After your request to KE.D is approved you will be given a clientId and a clientSecret for connectiong your application with Gsis OAuth2.0 providers.
+
+**IMPORTANT NOTICE:** 
+
+In order to use this plugin you must have acquired a permission for using GSIS OAuth2 services on your application. You must request and use a separate permission for each specific application you want to use GSIS OAuth2 with. Providing GSIS OAuth2 identification and authorization data to applications other than those an acquired permission is for, is against the service license provided by GSIS and will result in revoking your access to the service.
 
 ## Install
 
