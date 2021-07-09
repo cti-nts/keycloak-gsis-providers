@@ -1,6 +1,10 @@
 # Keycloak Gsis Providers
 
-This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds an production and testing identity providers allowing to use <a href="https://gsis.gr/en" target="_blank">Greek Public Administration</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
+**IMPORTANT NOTICE:** 
+
+**GSIS does NOT ALLOW using its authentication services for connecting or implemneting SSO with third applications OTHER THAN THE ONE you have requested and granded the access for. Using this plugin for providing identification and authorization data to applications other than the one you requested is against the service licence provided by GSIS and WILL RESULT TO REVOKE YOUR ACCESS TO THE SERVICE.**   
+
+This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin adds production and testing identity providers for using <a href="https://gsis.gr/en" target="_blank">Greek General Secretariat of Information Systems for Public Administration (GSIS)</a> <a href="https://oauth.net/2/" target="_blank">OAuth 2</a> Services.
 
 <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> is an open source Identity and Access Management solution aimed at modern applications and services. It makes it easy to secure applications and services with little to no code. 
 
@@ -8,26 +12,26 @@ This <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> plugin add
 
 ## Implemented identity providers
 
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> testing environmet (gsis-taxis-test)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> production environmet (gsis-taxis)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> testing environmet (gsis-govuser-test)
-- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> production environmet (gsis-govuser)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> testing environment (gsis-taxis-test)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20" target="_blank">TAXISnet OAuth2.0 authentication service</a> production environment (gsis-taxis)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> testing environment (gsis-govuser-test)
+- <a href="https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA" target="_blank">Employees OAuth2.0 authentication service</a> production environment (gsis-govuser)
 
 ## How to get permissions for using Gsis OAuth 2.0 authentication services for your application
 
-In order to be able to use Gsis OAuth 2.0 authentication services you need to request permission from Greek Public Administration. Instructions can be found at <a href="https://www.gsis.gr/en/public-administration/ked" target="_blank">Interoperability Center of the Ministry of Digital Governance (KE.D) web site</a>. 
+In order to be able to use Gsis OAuth 2.0 authentication services you need to request permission from GSIS. Instructions can be found at <a href="https://www.gsis.gr/en/public-administration/ked" target="_blank">Interoperability Center of the Ministry of Digital Governance (KE.D) web site</a>. 
 
 After your request to KE.D is approved you will be given a clientId and a clientSecret for connectiong your application with Gsis OAuth2.0 providers.
 
 ## Install
 
-**Quick**: Download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">latest jar</a> from Releases page. Then deploy it into $KEYCLOAK_HOME/standalone/deployments/ directory.
+**Quick**: Download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">latest release</a> jar from Releases page. Then deploy it into ```$KEYCLOAK_HOME/standalone/deployments/``` directory.
 
-You will need a functional Keycloak deployment. You can read <a href="https://www.keycloak.org/docs/latest/getting_started/" target="_blank">Keycloak getting started guide</a> for instructions on setting up a keycloak instance. You can also <a href="https://www.keycloak.org/getting-started/getting-started-docker" target="_blank">run Keycloak as a Docker Container</a> , or deploy Keycloak on Kubernetes via <a href="https://www.keycloak.org/getting-started/getting-started-kube" target="_blank">plain manifest</a> or using the <a href="https://www.keycloak.org/getting-started/getting-started-operator-kubernetes" target="_blank">Keycloak Operator</a>. 
+You will need a functional Keycloak deployment. You can read <a href="https://www.keycloak.org/docs/latest/getting_started/" target="_blank">Keycloak getting started guide</a> for instructions on setting up a Keycloak instance. You can also <a href="https://www.keycloak.org/getting-started/getting-started-docker" target="_blank">run Keycloak as a Docker Container</a> , or deploy Keycloak on Kubernetes via <a href="https://www.keycloak.org/getting-started/getting-started-kube" target="_blank">plain manifest</a> or using the <a href="https://www.keycloak.org/getting-started/getting-started-operator-kubernetes" target="_blank">Keycloak Operator</a>. 
 
-After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release jar</a> and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documnetation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension wthrough Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
+After having set up your Keycloak download <a href="https://github.com/cti-nts/keycloak-gsis-providers/releases/latest">the latest Keycloak Gsis Providers release</a> jar and install it to your instance. See <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure" target="_blank">Keycloak server installation documentation</a> for more info. You can also easily <a href="https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions" target="_blank"> deploy the extension through Operator Keycloak Manifest</a> if you are using Keycloak Operator on Kubernetes.  
 
-After succesfully installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
+After successfully installing the extension the following options will be available through Identity Providers -> Add Provider Keycloak administration console menu:
 
 - GsisTaxisTest (TAXISnet testing)
 - GsisTaxis (TAXISnet production)
@@ -39,12 +43,26 @@ After succesfully installing the extension the following options will be availab
 - Add the Gsis Identity Provider you want to use in the realm which you want to configure.
 - In the Gsis identity provider page, set Client Id and Client Secret.
 - (Optional) Set the alias for the provider and other options if you want.
+- (Optional) Set up provider mappers (See profile fields)
 
 See the <a href="https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker" target="_blank">Identity Brokering section of Keycloak Server Admin</a> for more info. 
 
+### Profile Fields
+
+Gsis OAuth 2.0 service provides the following profile fields for **individuals**:
+- userid
+- taxid
+- lastname
+- firstname
+- fathername
+- mothername
+- birthyear
+
+In Identity Provider Mapper page Select ```Attribute Importer``` as ```Mapper Type``` to import a profile field as user attribute.
+
 ## Source Build
 
-Clone this repository and run mvn package. You can see keycloak-gsis-providers-{vesrion}.jar under target directory.
+Clone this repository and run ```mvn package```. You can see ```keycloak-gsis-providers-{vesrion}.jar``` under target directory.
 
 ## Licence
 
@@ -55,4 +73,3 @@ Apache License, Version 2.0
 
 Built for the needs of [Greek School Network and Networking Technologies Directorate](http://nts.cti.gr/). 
 Based on [this sample extension](https://github.com/xgp/keycloak-moneybird-idp) by [xgp](https://github.com/xgp).
-
