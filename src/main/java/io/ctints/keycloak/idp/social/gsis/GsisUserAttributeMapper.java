@@ -23,9 +23,9 @@ import org.keycloak.broker.provider.IdentityProviderMapper;
 
 /** */
 @AutoService(IdentityProviderMapper.class)
-public class GsisGovuserUserAttributeMapper extends AbstractJsonUserAttributeMapper {
+public class GsisUserAttributeMapper extends AbstractJsonUserAttributeMapper {
 
-  public static final String PROVIDER_ID = "gsis-govuser-user-attribute-mapper";
+  public static final String PROVIDER_ID = "gsis-user-attribute-mapper";
   private static final String[] cp = new String[] {
     GsisGovuserTestIdentityProviderFactory.PROVIDER_ID, 
     GsisGovuserIdentityProviderFactory.PROVIDER_ID, 
