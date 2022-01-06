@@ -9,7 +9,7 @@
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.java.package>gr.cti.nts</main.java.package>
-    <keycloak.version>13.0.0</keycloak.version>
+    <keycloak.version>15.1.1</keycloak.version>
     <junit.version>4.8.1</junit.version>
     <keycloak.version>13.0.1</keycloak.version>
     <lombok.version>1.18.12</lombok.version>
