@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gr.cti.nts.keycloak.idp.social.gsis;
 
 import org.keycloak.broker.social.SocialIdentityProvider;
@@ -33,38 +34,36 @@ public class GsisTaxisIdentityProvider extends GsisAbstractIdentityProvider
 
   public static final String DEFAULT_SCOPE = "";
 
-  private static final String USER_INFO_URL =
-      "https://www1.gsis.gr/oauth2server/userinfo?format=xml";
+  private static final String USER_INFO_URL = "https://www1.gsis.gr/oauth2server/userinfo?format=xml";
 
-  private static final String LOGOUT_URL =
-      "https://www1.gsis.gr/oauth2server/logout/{clientId}/";
+  private static final String LOGOUT_URL = "https://www1.gsis.gr/oauth2server/logout/{clientId}/";
 
   public GsisTaxisIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
     super(session, config);
   }
 
   @Override
-  protected  String getAuthUrl(){
+  protected String getAuthUrl() {
     return AUTH_URL;
   }
 
   @Override
-  protected  String getTokenUrl(){
+  protected String getTokenUrl() {
     return TOKEN_URL;
   }
 
   @Override
-  protected  String getDefaultScope(){
+  protected String getDefaultScope() {
     return DEFAULT_SCOPE;
   }
 
   @Override
-  protected  String getUserInfoUrl(){
+  protected String getUserInfoUrl() {
     return USER_INFO_URL;
   }
 
   @Override
-  protected  String getLogoutUrl(){
+  protected String getLogoutUrl() {
     return LOGOUT_URL;
   }
 

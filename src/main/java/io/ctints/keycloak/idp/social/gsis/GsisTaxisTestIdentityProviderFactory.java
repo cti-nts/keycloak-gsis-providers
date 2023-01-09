@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gr.cti.nts.keycloak.idp.social.gsis;
 
 import com.google.auto.service.AutoService;

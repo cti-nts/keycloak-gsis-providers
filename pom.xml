@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>gr.cti.nts</groupId>
   <artifactId>keycloak-gsis-providers</artifactId>
@@ -21,11 +23,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-	<version>3.2.0</version>
+        <version>3.2.0</version>
         <configuration>
           <archive>
-            <!-- This is required since we need to add the jboss module references
-                 to the resulting jar -->
+            <!-- This is required since we need to add the jboss module references to the resulting
+            jar -->
             <manifestEntries>
               <!-- Adding explicit dependencies to avoid class-loading issues at runtime -->
               <Dependencies>
@@ -41,14 +43,14 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
-	  <compilerArgument>-Xlint:unchecked</compilerArgument>
-	  <compilerArgument>-Xlint:deprecation</compilerArgument>
+          <compilerArgument>-Xlint:unchecked</compilerArgument>
+          <compilerArgument>-Xlint:deprecation</compilerArgument>
           <useIncrementalCompilation>false</useIncrementalCompilation>
-	  <annotationProcessorPaths>
+          <annotationProcessorPaths>
             <path>
-	      <groupId>com.google.auto.service</groupId>
-	      <artifactId>auto-service</artifactId>
-	      <version>${auto-service.version}</version>
+              <groupId>com.google.auto.service</groupId>
+              <artifactId>auto-service</artifactId>
+              <version>${auto-service.version}</version>
             </path>
             <path>
               <groupId>org.projectlombok</groupId>
@@ -92,7 +94,7 @@
           </execution>
         </executions>
         <configuration>
-	  <classpathScope>test</classpathScope>
+          <classpathScope>test</classpathScope>
           <includeProjectDependencies>true</includeProjectDependencies>
           <includePluginDependencies>true</includePluginDependencies>
           <mainClass>org.keycloak.testsuite.KeycloakServer</mainClass>
@@ -172,25 +174,24 @@
               <key>keycloak.profile.feature.scripts</key>
               <value>enabled</value>
             </systemProperty>
-	    <!--
-            <systemProperty>
+            <!-- <systemProperty>
               <key>keycloak.theme.dir</key>
-              <value>theme/</value>
-            </systemProperty>
-	    -->
+            <value>theme/</value>
+            </systemProperty> -->
           </systemProperties>
-	</configuration>
+        </configuration>
         <dependencies>
-	  <dependency> <!-- if you're getting a missing dependency error here, you need to install keycloak from source locally, as this never hits maven central -->
-	    <groupId>org.keycloak</groupId>
-	    <artifactId>keycloak-testsuite-utils</artifactId>
-	    <version>${keycloak.version}</version>
-	  </dependency>
+          <dependency> <!-- if you're getting a missing dependency error here, you need to install
+            keycloak from source locally, as this never hits maven central -->
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-testsuite-utils</artifactId>
+            <version>${keycloak.version}</version>
+          </dependency>
         </dependencies>
       </plugin>
     </plugins>
   </build>
-  
+
   <dependencies>
     <!-- annotation processing helpers for logging and services -->
     <dependency>
@@ -227,12 +228,10 @@
   </dependencies>
 
   <distributionManagement>
-   <repository>
-     <id>github</id>
-     <name>GitHub keycloak-gsis-providers Apache Maven Packages</name>
-     <url>https://maven.pkg.github.com/cti-nts/keycloak-gsis-providers</url>
-   </repository>
-</distributionManagement>
-
-
+    <repository>
+      <id>github</id>
+      <name>GitHub keycloak-gsis-providers Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/cti-nts/keycloak-gsis-providers</url>
+    </repository>
+  </distributionManagement>
 </project>
