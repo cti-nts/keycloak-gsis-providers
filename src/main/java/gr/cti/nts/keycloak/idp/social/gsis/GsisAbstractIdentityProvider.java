@@ -103,7 +103,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
     String username = getJsonProperty(profile, "userid");
     user.setUsername(username);
-    user.setName(getJsonProperty(profile, "firstname") + " " + getJsonProperty(profile, "lastname"));
+    user.setFirstName(getJsonProperty(profile, "firstname"));
+    user.setLastName(getJsonProperty(profile, "lastname"));
     user.setEmail("");
     user.setIdpConfig(getConfig());
     user.setIdp(this);
