@@ -1,0 +1,31 @@
+{
+  "editor.linkedEditing": true,
+  "editor.tabSize": 2,
+  "editorconfig.generateAuto": false,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "html.format.wrapAttributes": "preserve",
+  "html.format.wrapLineLength": 0,
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "redhat.telemetry.enabled": false,
+  "xml.format.maxLineWidth": 100,
+  "yaml.format.printWidth": 100,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml",
+    "editor.formatOnSave": true
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.formatOnSave": true
+  }
+}
