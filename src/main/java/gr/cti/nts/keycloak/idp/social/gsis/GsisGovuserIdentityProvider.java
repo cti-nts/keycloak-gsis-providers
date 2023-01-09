@@ -19,14 +19,9 @@
 package gr.cti.nts.keycloak.idp.social.gsis;
 
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
-import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.models.KeycloakSession;
 
-import lombok.extern.jbosslog.JBossLog;
-
-@JBossLog
-public class GsisGovuserIdentityProvider extends GsisAbstractIdentityProvider
-    implements SocialIdentityProvider {
+public class GsisGovuserIdentityProvider extends GsisAbstractIdentityProvider {
 
   public static final String AUTH_URL = "https://www1.gsis.gr/oauth2servergov/oauth/authorize";
 
