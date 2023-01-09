@@ -150,7 +150,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       jsonStringProfile += "{";
 
       int index = 0;
-      for (Map.Entry m : userFields.entrySet()) {
+      for (Map.Entry<String, String> m : userFields.entrySet()) {
         if (index > 0) {
           jsonStringProfile += ", ";
         }
