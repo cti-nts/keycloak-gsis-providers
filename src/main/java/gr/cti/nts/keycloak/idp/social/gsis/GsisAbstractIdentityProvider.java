@@ -122,7 +122,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
           SimpleHttp.doGet(profileUrl, session)
               .header("Authorization", "Bearer " + accessToken)
               .asString();
-      final Map<String, String> userFields = new HashMap();
+      final Map<String, String> userFields = new HashMap<String, String>();
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
       parserFactory.setValidating(false);
       parserFactory.setXIncludeAware(false);
