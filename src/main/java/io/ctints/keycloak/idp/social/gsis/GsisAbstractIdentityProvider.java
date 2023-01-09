@@ -100,7 +100,6 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   @Override
   protected BrokeredIdentityContext extractIdentityFromProfile(
       EventBuilder event, JsonNode profile) {
-    log.infof("profile %s", jsonString(profile));
 
     BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "userid"));
 
