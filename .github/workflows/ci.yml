@@ -12,14 +12,18 @@ env:
 
 jobs:
   build:
+    name: Java ${{ matrix.java }}
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['8', '11']
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
@@ -27,5 +31,5 @@ jobs:
       - name: Upload JAR
         uses: actions/upload-artifact@v3
         with:
-          name: keycloak-gsis-providers
+          name: keycloak-gsis-providers-java-${{ matrix.java }}
           path: target/keycloak-gsis-providers-1.0.0-SNAPSHOT.jar
