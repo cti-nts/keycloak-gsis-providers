@@ -174,16 +174,6 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     return getDefaultScope();
   }
 
-  private static String jsonString(JsonNode jsonNode) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      Object json = mapper.readValue(jsonNode.toString(), Object.class);
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
   private String getIDTokenForLogout(KeycloakSession session, UserSessionModel userSession) {
     String tokenExpirationString = userSession.getNote(FEDERATED_TOKEN_EXPIRATION);
     long exp = tokenExpirationString == null ? 0 : Long.parseLong(tokenExpirationString);
