@@ -12,6 +12,7 @@
   "redhat.telemetry.enabled": false,
   "xml.format.maxLineWidth": 100,
   "yaml.format.printWidth": 100,
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
   "[java]": {
     "editor.defaultFormatter": "redhat.java",
     "editor.formatOnSave": true
