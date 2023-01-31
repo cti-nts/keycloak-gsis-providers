@@ -73,5 +73,5 @@ Apache License, Version 2.0
 
 - [Konstantinos Togias](https://github.com/ktogias)
 
-Built for the needs of [Greek School Network and Networking Technologies Directorate](http://nts.cti.gr/).
+Built for the needs of [Greek School Network and Networking Technologies Directorate](http://nts.cti.gr/).  
 Based on [this sample extension](https://github.com/xgp/keycloak-moneybird-idp) by [xgp](https://github.com/xgp).
