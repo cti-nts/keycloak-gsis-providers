@@ -2,12 +2,14 @@ name: 'CodeQL'
 
 on:
   push:
-    branches: ['main']
+    branches:
+      - 'main'
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: ['main']
+    branches:
+      - 'main'
   schedule:
     - cron: '36 0 * * 3'
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -18,22 +20,16 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['java']
-
     steps:
-      - name: Checkout repository
+      - name: Clone repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
-      # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: ${{ matrix.language }}
-          # Details on CodeQL's query packs refer to:
-          # https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+          languages: 'java'
           queries: security-extended,security-and-quality
 
       - name: Autobuild
