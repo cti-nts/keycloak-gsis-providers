@@ -14,20 +14,27 @@ jobs:
   build:
     name: Java ${{ matrix.java }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         java: ['8', '11', '17']
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
+
+      - name: Build
         run: mvn -B package --file pom.xml
+
       - name: Upload JAR
         uses: actions/upload-artifact@v3
         with:
