@@ -23,7 +23,6 @@ import org.keycloak.broker.provider.IdentityProviderMapper;
 
 import com.google.auto.service.AutoService;
 
-/** */
 @AutoService(IdentityProviderMapper.class)
 public class GsisUserAttributeMapper extends AbstractJsonUserAttributeMapper {
 

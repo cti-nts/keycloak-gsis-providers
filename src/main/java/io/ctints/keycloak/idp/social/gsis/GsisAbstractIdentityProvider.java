@@ -64,7 +64,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.jbosslog.JBossLog;
 
-/** */
 @JBossLog
 public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider
     implements SocialIdentityProvider {

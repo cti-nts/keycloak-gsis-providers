@@ -26,7 +26,6 @@ import org.keycloak.models.KeycloakSession;
 
 import com.google.auto.service.AutoService;
 
-/** */
 @AutoService(SocialIdentityProviderFactory.class)
 public class GsisGovuserIdentityProviderFactory
     extends AbstractIdentityProviderFactory<GsisGovuserIdentityProvider>

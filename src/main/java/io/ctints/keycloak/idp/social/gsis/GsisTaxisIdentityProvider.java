@@ -24,7 +24,6 @@ import org.keycloak.models.KeycloakSession;
 
 import lombok.extern.jbosslog.JBossLog;
 
-/** */
 @JBossLog
 public class GsisTaxisIdentityProvider extends GsisAbstractIdentityProvider
     implements SocialIdentityProvider {
