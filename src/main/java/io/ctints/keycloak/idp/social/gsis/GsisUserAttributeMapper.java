@@ -18,9 +18,10 @@
 
 package gr.cti.nts.keycloak.idp.social.gsis;
 
-import com.google.auto.service.AutoService;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.IdentityProviderMapper;
+
+import com.google.auto.service.AutoService;
 
 /** */
 @AutoService(IdentityProviderMapper.class)

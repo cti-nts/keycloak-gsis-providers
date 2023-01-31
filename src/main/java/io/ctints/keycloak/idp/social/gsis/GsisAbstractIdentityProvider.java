@@ -18,9 +18,20 @@
 
 package gr.cti.nts.keycloak.idp.social.gsis;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.jbosslog.JBossLog;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
@@ -28,46 +39,30 @@ import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.broker.social.SocialIdentityProvider;
+import org.keycloak.common.util.Time;
+import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
+import org.keycloak.events.EventType;
 import org.keycloak.models.KeycloakSession;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import java.io.StringReader;
-import org.xml.sax.InputSource;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserSessionModel;
+import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.services.ErrorPage;
+import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.services.messages.Messages;
+import org.keycloak.services.resources.IdentityBrokerService;
+import org.keycloak.services.resources.RealmsResource;
+import org.keycloak.util.JsonSerialization;
+import org.keycloak.vault.VaultStringSecret;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import org.keycloak.models.UserSessionModel;
-import org.keycloak.models.RealmModel;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.Response;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.keycloak.common.util.Time;
-import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.util.JsonSerialization;
-import java.io.IOException;
-import org.keycloak.vault.VaultStringSecret;
-import javax.ws.rs.core.UriBuilder;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-
-import org.keycloak.events.EventType;
-import org.keycloak.events.Errors;
-
-import org.keycloak.services.messages.Messages;
-import org.keycloak.services.ErrorPage;
-import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.resources.IdentityBrokerService;
-import org.keycloak.services.resources.RealmsResource;
+import lombok.extern.jbosslog.JBossLog;
 
 /** */
 @JBossLog
