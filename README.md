@@ -1,4 +1,4 @@
-# Keycloak Gsis Providers
+# Keycloak Gsis Providers [![Build Status](https://github.com/cti-nts/keycloak-gsis-providers/workflows/CI/badge.svg)](https://github.com/cti-nts/keycloak-gsis-providers/actions?query=workflow%3ACI+branch%3Amain)
 
 This [Keycloak](https://www.keycloak.org/) plugin adds production and testing identity providers for using [Greek General Secretariat of Information Systems for Public Administration (GSIS)](https://gsis.gr/en) [OAuth 2](https://oauth.net/2/) Services.
 
