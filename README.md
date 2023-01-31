@@ -23,7 +23,7 @@ After your request to KE.D is approved you will be given a clientId and a client
 
 You must acquire a separate permission (separate `clientId`) for each specific application you want to use GSIS OAuth2 with. Providing GSIS OAuth2 identification and authorization data to applications other than those an acquired permission is for, is against the service license provided by GSIS and will result in revoking your access to the service.
 
-## Install
+## Installation
 
 **Quick**: Download [latest release](https://github.com/cti-nts/keycloak-gsis-providers/releases/latest) jar from Releases page. Then deploy it into `$KEYCLOAK_HOME/standalone/deployments/` directory.
 
