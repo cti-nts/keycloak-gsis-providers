@@ -63,7 +63,8 @@
             </annotationProcessorPaths>
           </configuration>
         </plugin>
-        <plugin> <!-- put the git sha in the code -->
+        <!-- put the git sha in the code -->
+        <plugin>
           <groupId>com.fizzed</groupId>
           <artifactId>fizzed-versionizer-maven-plugin</artifactId>
           <version>1.0.6</version>
@@ -80,12 +81,8 @@
             <versionCommit>${buildNumber}</versionCommit>
           </configuration>
         </plugin>
-        <plugin> <!-- pretty up the code using google java standards `mvn fmt:format` -->
-          <groupId>com.spotify.fmt</groupId>
-          <artifactId>fmt-maven-plugin</artifactId>
-          <version>2.19</version>
-        </plugin>
-        <plugin> <!-- run the playground server -->
+        <!-- run the playground server -->
+        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.1.0</version>
@@ -184,8 +181,9 @@
             </systemProperties>
           </configuration>
           <dependencies>
-            <dependency> <!-- if you're getting a missing dependency error here, you need to install
-              keycloak from source locally, as this never hits maven central -->
+            <!-- if you're getting a missing dependency error here, you need to install
+            keycloak from source locally, as this never hits maven central -->
+            <dependency>
               <groupId>org.keycloak</groupId>
               <artifactId>keycloak-testsuite-utils</artifactId>
               <version>${keycloak.version}</version>

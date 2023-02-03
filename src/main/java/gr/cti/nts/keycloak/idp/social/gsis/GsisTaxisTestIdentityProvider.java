@@ -32,8 +32,8 @@ public class GsisTaxisTestIdentityProvider extends GsisAbstractIdentityProvider 
 
   private static final String LOGOUT_URL = "https://test.gsis.gr/oauth2server/logout/{clientId}/";
 
-  public GsisTaxisTestIdentityProvider(
-      KeycloakSession session, OAuth2IdentityProviderConfig config) {
+  public GsisTaxisTestIdentityProvider(KeycloakSession session,
+      OAuth2IdentityProviderConfig config) {
     super(session, config);
   }
 

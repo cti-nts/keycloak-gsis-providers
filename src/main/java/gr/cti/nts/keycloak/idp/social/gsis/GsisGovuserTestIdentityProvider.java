@@ -33,8 +33,8 @@ public class GsisGovuserTestIdentityProvider extends GsisAbstractIdentityProvide
   private static final String LOGOUT_URL =
       "https://test.gsis.gr/oauth2servergov/logout/{clientId}/";
 
-  public GsisGovuserTestIdentityProvider(
-      KeycloakSession session, OAuth2IdentityProviderConfig config) {
+  public GsisGovuserTestIdentityProvider(KeycloakSession session,
+      OAuth2IdentityProviderConfig config) {
     super(session, config);
   }
 

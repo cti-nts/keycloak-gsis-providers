@@ -16,12 +16,12 @@
 
 package gr.cti.nts.keycloak.idp.social.gsis;
 
-import com.google.auto.service.AutoService;
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
 import org.keycloak.broker.social.SocialIdentityProviderFactory;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
+import com.google.auto.service.AutoService;
 
 @AutoService(SocialIdentityProviderFactory.class)
 public class GsisGovuserTestIdentityProviderFactory
@@ -36,8 +36,8 @@ public class GsisGovuserTestIdentityProviderFactory
   }
 
   @Override
-  public GsisGovuserTestIdentityProvider create(
-      KeycloakSession session, IdentityProviderModel model) {
+  public GsisGovuserTestIdentityProvider create(KeycloakSession session,
+      IdentityProviderModel model) {
     return new GsisGovuserTestIdentityProvider(session, new OAuth2IdentityProviderConfig(model));
   }
 

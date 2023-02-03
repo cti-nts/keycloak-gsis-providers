@@ -16,25 +16,23 @@
 
 package gr.cti.nts.keycloak.idp.social.gsis;
 
-import com.google.auto.service.AutoService;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.IdentityProviderMapper;
+import com.google.auto.service.AutoService;
 
 @AutoService(IdentityProviderMapper.class)
 public class GsisUserAttributeMapper extends AbstractJsonUserAttributeMapper {
 
   public static final String PROVIDER_ID = "gsis-user-attribute-mapper";
-  private static final String[] cp =
-      new String[] {
-        GsisGovuserTestIdentityProviderFactory.PROVIDER_ID,
-        GsisGovuserIdentityProviderFactory.PROVIDER_ID,
-        GsisTaxisTestIdentityProviderFactory.PROVIDER_ID,
-        GsisTaxisIdentityProviderFactory.PROVIDER_ID
-      };
+  private static final String[] compatibleProviders =
+      new String[] {GsisGovuserTestIdentityProviderFactory.PROVIDER_ID,
+          GsisGovuserIdentityProviderFactory.PROVIDER_ID,
+          GsisTaxisTestIdentityProviderFactory.PROVIDER_ID,
+          GsisTaxisIdentityProviderFactory.PROVIDER_ID};
 
   @Override
   public String[] getCompatibleProviders() {
-    return cp;
+    return compatibleProviders;
   }
 
   @Override

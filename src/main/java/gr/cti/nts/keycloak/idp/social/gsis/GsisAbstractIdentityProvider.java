@@ -16,8 +16,6 @@
 
 package gr.cti.nts.keycloak.idp.social.gsis;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -30,7 +28,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
@@ -57,6 +54,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
 public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider
@@ -64,8 +64,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
 
-  public GsisAbstractIdentityProvider(
-      KeycloakSession session, OAuth2IdentityProviderConfig config) {
+  public GsisAbstractIdentityProvider(KeycloakSession session,
+      OAuth2IdentityProviderConfig config) {
     super(session, config);
     config.setAuthorizationUrl(getAuthUrl());
     config.setTokenUrl(getTokenUrl());
@@ -92,8 +92,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   }
 
   @Override
-  protected BrokeredIdentityContext extractIdentityFromProfile(
-      EventBuilder event, JsonNode profile) {
+  protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event,
+      JsonNode profile) {
 
     BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "userid"));
 
@@ -105,8 +105,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     user.setIdpConfig(getConfig());
     user.setIdp(this);
 
-    AbstractJsonUserAttributeMapper.storeUserProfileForMapper(
-        user, profile, getConfig().getAlias());
+    AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile,
+        getConfig().getAlias());
 
     return user;
   }
@@ -118,34 +118,29 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String jsonStringProfile = "";
 
     try {
-      profile =
-          SimpleHttp.doGet(profileUrl, session)
-              .header("Authorization", "Bearer " + accessToken)
-              .asString();
+      profile = SimpleHttp.doGet(profileUrl, session)
+          .header("Authorization", "Bearer " + accessToken).asString();
       final Map<String, String> userFields = new HashMap<String, String>();
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
       parserFactory.setValidating(false);
       parserFactory.setXIncludeAware(false);
       parserFactory.setNamespaceAware(false);
       SAXParser parser = parserFactory.newSAXParser();
-      parser.parse(
-          new InputSource(new StringReader(profile)),
-          new DefaultHandler() {
-            @Override
-            public void startElement(
-                String uri, String localName, String qName, Attributes attributes)
-                throws SAXException {
-              if ("userinfo".equals(qName)) {
-                userFields.put("userid", attributes.getValue("userid"));
-                userFields.put("taxid", attributes.getValue("taxid"));
-                userFields.put("lastname", attributes.getValue("lastname"));
-                userFields.put("firstname", attributes.getValue("firstname"));
-                userFields.put("fathername", attributes.getValue("fathername"));
-                userFields.put("mothername", attributes.getValue("mothername"));
-                userFields.put("birthyear", attributes.getValue("birthyear"));
-              }
-            }
-          });
+      parser.parse(new InputSource(new StringReader(profile)), new DefaultHandler() {
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+            throws SAXException {
+          if ("userinfo".equals(qName)) {
+            userFields.put("userid", attributes.getValue("userid"));
+            userFields.put("taxid", attributes.getValue("taxid"));
+            userFields.put("lastname", attributes.getValue("lastname"));
+            userFields.put("firstname", attributes.getValue("firstname"));
+            userFields.put("fathername", attributes.getValue("fathername"));
+            userFields.put("mothername", attributes.getValue("mothername"));
+            userFields.put("birthyear", attributes.getValue("birthyear"));
+          }
+        }
+      });
 
       jsonStringProfile += "{";
 
@@ -213,10 +208,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
-        return ErrorPage.error(
-            session,
-            null,
-            Response.Status.BAD_REQUEST,
+        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
             Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
       }
       UserSessionModel userSession = session.sessions().getUserSession(realm, state);
@@ -225,10 +217,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
-        return ErrorPage.error(
-            session,
-            null,
-            Response.Status.BAD_REQUEST,
+        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
             Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
       }
       if (userSession.getState() != UserSessionModel.State.LOGGING_OUT) {
@@ -236,11 +225,11 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
-        return ErrorPage.error(
-            session, null, Response.Status.BAD_REQUEST, Messages.SESSION_NOT_ACTIVE);
+        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
+            Messages.SESSION_NOT_ACTIVE);
       }
-      return AuthenticationManager.finishBrowserLogout(
-          session, realm, userSession, session.getContext().getUri(), clientConnection, headers);
+      return AuthenticationManager.finishBrowserLogout(session, realm, userSession,
+          session.getContext().getUri(), clientConnection, headers);
     }
   }
 
@@ -256,43 +245,36 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String refreshToken = userSession.getNote(FEDERATED_REFRESH_TOKEN);
     try (VaultStringSecret vaultStringSecret =
         session.vault().getStringSecret(getConfig().getClientSecret())) {
-      return getRefreshTokenRequest(
-              session,
-              refreshToken,
-              getConfig().getClientId(),
-              vaultStringSecret.get().orElse(getConfig().getClientSecret()))
-          .asString();
+      return getRefreshTokenRequest(session, refreshToken, getConfig().getClientId(),
+          vaultStringSecret.get().orElse(getConfig().getClientSecret())).asString();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected SimpleHttp getRefreshTokenRequest(
-      KeycloakSession session, String refreshToken, String clientId, String clientSecret) {
-    SimpleHttp refreshTokenRequest =
-        SimpleHttp.doPost(getConfig().getTokenUrl(), session)
-            .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
-            .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
+  protected SimpleHttp getRefreshTokenRequest(KeycloakSession session, String refreshToken,
+      String clientId, String clientSecret) {
+    SimpleHttp refreshTokenRequest = SimpleHttp.doPost(getConfig().getTokenUrl(), session)
+        .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
+        .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
     return authenticateTokenRequest(refreshTokenRequest);
   }
 
-  public Response keycloakInitiatedBrowserLogout(
-      KeycloakSession session, UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
+  public Response keycloakInitiatedBrowserLogout(KeycloakSession session,
+      UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
     log.infof("keycloakInitiatedBrowserLogout");
-    if (getLogoutUrl() == null || getLogoutUrl().trim().equals("")) return null;
+    if (getLogoutUrl() == null || getLogoutUrl().trim().equals(""))
+      return null;
     String idToken = getIDTokenForLogout(session, userSession);
 
     String sessionId = userSession.getId();
 
     UriBuilder logoutUri = UriBuilder.fromUri(getLogoutUrl()).queryParam("state", sessionId);
-    if (idToken != null) logoutUri.queryParam("id_token_hint", idToken);
-    String redirect =
-        RealmsResource.brokerUrl(uriInfo)
-            .path(IdentityBrokerService.class, "getEndpoint")
-            .path(OIDCEndpoint.class, "logoutResponse")
-            .queryParam("state", sessionId)
-            .build(realm.getName(), getConfig().getAlias())
-            .toString();
+    if (idToken != null)
+      logoutUri.queryParam("id_token_hint", idToken);
+    String redirect = RealmsResource.brokerUrl(uriInfo)
+        .path(IdentityBrokerService.class, "getEndpoint").path(OIDCEndpoint.class, "logoutResponse")
+        .queryParam("state", sessionId).build(realm.getName(), getConfig().getAlias()).toString();
     logoutUri.queryParam("url", redirect);
     Response response =
         Response.status(302).location(logoutUri.build(getConfig().getClientId())).build();
