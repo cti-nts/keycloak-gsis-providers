@@ -35,8 +35,12 @@ jobs:
       - name: Build
         run: mvn -B package --file pom.xml
 
-      - name: Upload JAR
+      - name: Rename jar file
+        run: |
+          mv target/keycloak-gsis-providers-1.0.0-SNAPSHOT.jar target/keycloak-gsis-providers-java-${{ matrix.java }}-1.0.0-SNAPSHOT.jsr
+
+      - name: Upload jar file
         uses: actions/upload-artifact@v3
         with:
           name: keycloak-gsis-providers-java-${{ matrix.java }}
-          path: target/keycloak-gsis-providers-1.0.0-SNAPSHOT.jar
+          path: target/keycloak-gsis-providers-java-${{ matrix.java }}-1.0.0-SNAPSHOT.jar
