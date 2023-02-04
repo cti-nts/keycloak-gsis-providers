@@ -17,17 +17,12 @@
 package gr.cti.nts.keycloak.idp.social.gsis;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
@@ -50,12 +45,9 @@ import org.keycloak.services.resources.IdentityBrokerService;
 import org.keycloak.services.resources.RealmsResource;
 import org.keycloak.util.JsonSerialization;
 import org.keycloak.vault.VaultStringSecret;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
@@ -116,56 +108,27 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   @Override
   protected BrokeredIdentityContext doGetFederatedIdentity(String accessToken) {
     String profileUrl = getUserInfoUrl();
-    String jsonStringProfile = "";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode newJsonProfile = mapper.createObjectNode();
 
     try {
       SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
-      String profile = request.header("Authorization", "Bearer " + accessToken).asString();
+      JsonNode jsonProfile = request.header("Authorization", "Bearer " + accessToken).asJson();
 
-      SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-      parserFactory.setValidating(false);
-      parserFactory.setXIncludeAware(false);
-      parserFactory.setNamespaceAware(false);
+      newJsonProfile.set("userid", jsonProfile.path("userid"));
+      newJsonProfile.set("taxid", jsonProfile.path("taxid"));
+      newJsonProfile.set("firstname", jsonProfile.path("firstname"));
+      newJsonProfile.set("lastname", jsonProfile.path("lastname"));
+      newJsonProfile.set("fathername", jsonProfile.path("fathername"));
+      newJsonProfile.set("mothername", jsonProfile.path("mothername"));
+      newJsonProfile.set("birthyear", jsonProfile.path("birthyear"));
 
-      final Map<String, String> userFields = new HashMap<String, String>();
-      SAXParser parser = parserFactory.newSAXParser();
+      newJsonProfile = mapper.valueToTree(newJsonProfile);
 
-      parser.parse(new InputSource(new StringReader(profile)), new DefaultHandler() {
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes)
-            throws SAXException {
-          if ("userinfo".equals(qName)) {
-            userFields.put("userid", attributes.getValue("userid"));
-            userFields.put("taxid", attributes.getValue("taxid"));
-            userFields.put("lastname", attributes.getValue("lastname"));
-            userFields.put("firstname", attributes.getValue("firstname"));
-            userFields.put("fathername", attributes.getValue("fathername"));
-            userFields.put("mothername", attributes.getValue("mothername"));
-            userFields.put("birthyear", attributes.getValue("birthyear"));
-          }
-        }
-      });
-
-      jsonStringProfile += "{";
-
-      int index = 0;
-      for (Map.Entry<String, String> m : userFields.entrySet()) {
-        if (index > 0) {
-          jsonStringProfile += ", ";
-        }
-        jsonStringProfile += "\"" + m.getKey() + "\":\"" + m.getValue() + "\"";
-        index++;
-      }
-
-      jsonStringProfile += "}";
-
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonProfile = mapper.readTree(jsonStringProfile);
-
-      return extractIdentityFromProfile(null, jsonProfile);
+      return extractIdentityFromProfile(null, newJsonProfile);
     } catch (Exception e) {
-      throw new IdentityBrokerException(
-          "Could not obtain user profile from gsis. *** Profile:" + jsonStringProfile + " ***", e);
+      throw new IdentityBrokerException("Could not obtain user profile from gsis. *** Profile: "
+          + newJsonProfile.toPrettyString(), e);
     }
   }
 
