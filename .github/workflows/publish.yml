@@ -1,0 +1,36 @@
+name: Publish package to GitHub Packages
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+env:
+  FORCE_COLOR: 2
+  JAVA: "11"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
