@@ -7,6 +7,22 @@
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
 
+  <name>keycloak-gsis-providers</name>
+  <description>This Keycloak plugin adds production and testing identity providers for using GSIS OAuth 2 Services</description>
+  <url>https://github.com/cti-nts/keycloak-gsis-providers</url>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/cti-nts/keycloak-gsis-providers.git</connection>
+    <url>https://github.com/cti-nts/keycloak-gsis-providers/tree/main</url>
+  </scm>
+
   <properties>
     <java.version>11</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
