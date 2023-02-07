@@ -94,19 +94,21 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   @Override
   protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event,
       JsonNode profile) {
-
-    BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "userid"));
-
     String username = getJsonProperty(profile, "userid");
+    String firstname = getJsonProperty(profile, "firstname");
+    String lastname = getJsonProperty(profile, "lastname");
+
+    BrokeredIdentityContext user = new BrokeredIdentityContext(username);
+    OAuth2IdentityProviderConfig config = getConfig();
+
     user.setUsername(username);
-    user.setFirstName(getJsonProperty(profile, "firstname"));
-    user.setLastName(getJsonProperty(profile, "lastname"));
+    user.setFirstName(firstname);
+    user.setLastName(lastname);
     user.setEmail("");
-    user.setIdpConfig(getConfig());
+    user.setIdpConfig(config);
     user.setIdp(this);
 
-    AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile,
-        getConfig().getAlias());
+    AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile, config.getAlias());
 
     return user;
   }
@@ -114,18 +116,20 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   @Override
   protected BrokeredIdentityContext doGetFederatedIdentity(String accessToken) {
     String profileUrl = getUserInfoUrl();
-    String profile = "";
     String jsonStringProfile = "";
 
     try {
-      profile = SimpleHttp.doGet(profileUrl, session)
-          .header("Authorization", "Bearer " + accessToken).asString();
-      final Map<String, String> userFields = new HashMap<String, String>();
+      SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
+      String profile = request.header("Authorization", "Bearer " + accessToken).asString();
+
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
       parserFactory.setValidating(false);
       parserFactory.setXIncludeAware(false);
       parserFactory.setNamespaceAware(false);
+
+      final Map<String, String> userFields = new HashMap<String, String>();
       SAXParser parser = parserFactory.newSAXParser();
+
       parser.parse(new InputSource(new StringReader(profile)), new DefaultHandler() {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -158,8 +162,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       ObjectMapper mapper = new ObjectMapper();
       JsonNode jsonProfile = mapper.readTree(jsonStringProfile);
 
-      BrokeredIdentityContext user = extractIdentityFromProfile(null, jsonProfile);
-      return user;
+      return extractIdentityFromProfile(null, jsonProfile);
     } catch (Exception e) {
       throw new IdentityBrokerException(
           "Could not obtain user profile from gsis. *** Profile:" + jsonStringProfile + " ***", e);
@@ -173,20 +176,23 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   private String getIDTokenForLogout(KeycloakSession session, UserSessionModel userSession) {
     String tokenExpirationString = userSession.getNote(FEDERATED_TOKEN_EXPIRATION);
-    long exp = tokenExpirationString == null ? 0 : Long.parseLong(tokenExpirationString);
+    long expirationTime = tokenExpirationString == null ? 0 : Long.parseLong(tokenExpirationString);
     int currentTime = Time.currentTime();
-    if (exp > 0 && currentTime > exp) {
+
+    if (expirationTime > 0 && currentTime > expirationTime) {
       String response = refreshTokenForLogout(session, userSession);
       AccessTokenResponse tokenResponse = null;
+
       try {
         tokenResponse = JsonSerialization.readValue(response, AccessTokenResponse.class);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
+
       return tokenResponse.getIdToken();
-    } else {
-      return userSession.getNote(FEDERATED_ID_TOKEN);
     }
+
+    return userSession.getNote(FEDERATED_ID_TOKEN);
   }
 
   protected class OIDCEndpoint extends Endpoint {
@@ -208,26 +214,32 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
+
         return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
             Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
       }
+
       UserSessionModel userSession = session.sessions().getUserSession(realm, state);
       if (userSession == null) {
         logger.error("no valid user session");
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
+
         return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
             Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
       }
+
       if (userSession.getState() != UserSessionModel.State.LOGGING_OUT) {
         logger.error("usersession in different state");
         EventBuilder event = new EventBuilder(realm, session, clientConnection);
         event.event(EventType.LOGOUT);
         event.error(Errors.USER_SESSION_NOT_FOUND);
+
         return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
             Messages.SESSION_NOT_ACTIVE);
       }
+
       return AuthenticationManager.finishBrowserLogout(session, realm, userSession,
           session.getContext().getUri(), clientConnection, headers);
     }
@@ -243,10 +255,12 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
    */
   public String refreshTokenForLogout(KeycloakSession session, UserSessionModel userSession) {
     String refreshToken = userSession.getNote(FEDERATED_REFRESH_TOKEN);
-    try (VaultStringSecret vaultStringSecret =
-        session.vault().getStringSecret(getConfig().getClientSecret())) {
-      return getRefreshTokenRequest(session, refreshToken, getConfig().getClientId(),
-          vaultStringSecret.get().orElse(getConfig().getClientSecret())).asString();
+    OAuth2IdentityProviderConfig config = getConfig();
+    String clientSecret = config.getClientSecret();
+
+    try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(clientSecret)) {
+      return getRefreshTokenRequest(session, refreshToken, config.getClientId(),
+          vaultStringSecret.get().orElse(clientSecret)).asString();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -257,27 +271,33 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     SimpleHttp refreshTokenRequest = SimpleHttp.doPost(getConfig().getTokenUrl(), session)
         .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
         .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
+
     return authenticateTokenRequest(refreshTokenRequest);
   }
 
   public Response keycloakInitiatedBrowserLogout(KeycloakSession session,
       UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
     log.infof("keycloakInitiatedBrowserLogout");
-    if (getLogoutUrl() == null || getLogoutUrl().trim().equals(""))
+    String logoutUrl = getLogoutUrl();
+
+    if (logoutUrl == null || logoutUrl.trim().equals("")) {
       return null;
+    }
+
     String idToken = getIDTokenForLogout(session, userSession);
-
     String sessionId = userSession.getId();
+    UriBuilder logoutUri = UriBuilder.fromUri(logoutUrl).queryParam("state", sessionId);
 
-    UriBuilder logoutUri = UriBuilder.fromUri(getLogoutUrl()).queryParam("state", sessionId);
-    if (idToken != null)
+    if (idToken != null) {
       logoutUri.queryParam("id_token_hint", idToken);
+    }
+
+    OAuth2IdentityProviderConfig config = getConfig();
     String redirect = RealmsResource.brokerUrl(uriInfo)
         .path(IdentityBrokerService.class, "getEndpoint").path(OIDCEndpoint.class, "logoutResponse")
-        .queryParam("state", sessionId).build(realm.getName(), getConfig().getAlias()).toString();
+        .queryParam("state", sessionId).build(realm.getName(), config.getAlias()).toString();
     logoutUri.queryParam("url", redirect);
-    Response response =
-        Response.status(302).location(logoutUri.build(getConfig().getClientId())).build();
-    return response;
+
+    return Response.status(302).location(logoutUri.build(config.getClientId())).build();
   }
 }
