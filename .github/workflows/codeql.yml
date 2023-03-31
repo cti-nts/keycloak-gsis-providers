@@ -3,10 +3,12 @@ name: 'CodeQL'
 on:
   push:
     branches:
-      - 'main'
+      - main
+      - '!dependabot/**'
   pull_request:
     branches:
-      - 'main'
+      - main
+      - '!dependabot/**'
   schedule:
     - cron: '36 0 * * 3'
   workflow_dispatch:
