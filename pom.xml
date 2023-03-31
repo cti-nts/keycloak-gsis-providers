@@ -29,7 +29,7 @@
     <main.java.package>gr.cti.nts</main.java.package>
     <keycloak.version>18.0.0</keycloak.version>
     <junit.version>4.13.2</junit.version>
-    <lombok.version>1.18.24</lombok.version>
+    <lombok.version>1.18.26</lombok.version>
     <auto-service.version>1.0.1</auto-service.version>
   </properties>
 
