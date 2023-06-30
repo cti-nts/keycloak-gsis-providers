@@ -27,7 +27,7 @@
     <java.version>11</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.java.package>gr.cti.nts</main.java.package>
-    <keycloak.version>18.0.0</keycloak.version>
+    <keycloak.version>21.1.2</keycloak.version>
     <junit.version>4.13.2</junit.version>
     <lombok.version>1.18.28</lombok.version>
     <auto-service.version>1.0.1</auto-service.version>
