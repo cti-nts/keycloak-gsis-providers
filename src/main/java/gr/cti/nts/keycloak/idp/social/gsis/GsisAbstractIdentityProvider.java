@@ -276,6 +276,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     return authenticateTokenRequest(refreshTokenRequest);
   }
 
+  @Override
   public Response keycloakInitiatedBrowserLogout(KeycloakSession session,
       UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
     log.infof("keycloakInitiatedBrowserLogout");
