@@ -282,7 +282,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     log.infof("keycloakInitiatedBrowserLogout");
     String logoutUrl = getLogoutUrl();
 
-    if (logoutUrl == null || logoutUrl.trim().equals("")) {
+    if (logoutUrl == null || logoutUrl.trim().length() == 0) {
       return null;
     }
 
