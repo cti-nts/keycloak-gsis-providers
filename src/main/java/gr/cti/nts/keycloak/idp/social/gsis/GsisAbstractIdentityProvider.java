@@ -20,12 +20,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
@@ -56,6 +50,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
@@ -83,7 +83,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   @Override
   public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {
-    return new OIDCEndpoint(callback, realm, event);
+    return new OIDCEndpoint(callback, realm, event, this);
   }
 
   @Override
@@ -196,8 +196,9 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   }
 
   protected class OIDCEndpoint extends Endpoint {
-    public OIDCEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event) {
-      super(callback, realm, event);
+    public OIDCEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event,
+        AbstractOAuth2IdentityProvider provider) {
+      super(callback, realm, event, provider);
     }
 
     @Override
