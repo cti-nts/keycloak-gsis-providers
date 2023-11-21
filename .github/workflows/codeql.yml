@@ -28,6 +28,13 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
