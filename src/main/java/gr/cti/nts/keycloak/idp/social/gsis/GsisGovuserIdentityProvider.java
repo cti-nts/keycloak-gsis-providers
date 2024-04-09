@@ -21,17 +21,17 @@ import org.keycloak.models.KeycloakSession;
 
 public class GsisGovuserIdentityProvider extends GsisAbstractIdentityProvider {
 
-  public static final String AUTH_URL = "https://www1.gsis.gr/oauth2servergov/oauth/authorize";
+  public static final String AUTH_URL = "https://oauth2.gsis.gr/oauth2servergov/oauth/authorize";
 
-  public static final String TOKEN_URL = "https://www1.gsis.gr/oauth2servergov/oauth/token";
+  public static final String TOKEN_URL = "https://oauth2.gsis.gr/oauth2servergov/oauth/token";
 
   public static final String DEFAULT_SCOPE = "";
 
   private static final String USER_INFO_URL =
-      "https://www1.gsis.gr/oauth2servergov/userinfo?format=xml";
+      "https://oauth2.gsis.gr/oauth2servergov/userinfo?format=xml";
 
   private static final String LOGOUT_URL =
-      "https://www1.gsis.gr/oauth2servergov/logout/{clientId}/";
+      "https://oauth2.gsis.gr/oauth2servergov/logout/{clientId}/";
 
   public GsisGovuserIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
     super(session, config);
