@@ -21,16 +21,16 @@ import org.keycloak.models.KeycloakSession;
 
 public class GsisTaxisIdentityProvider extends GsisAbstractIdentityProvider {
 
-  public static final String AUTH_URL = "https://www1.gsis.gr/oauth2server/oauth/authorize";
+  public static final String AUTH_URL = "https://oauth2.gsis.gr/oauth2server/oauth/authorize";
 
-  public static final String TOKEN_URL = "https://www1.gsis.gr/oauth2server/oauth/token";
+  public static final String TOKEN_URL = "https://oauth2.gsis.gr/oauth2server/oauth/token";
 
   public static final String DEFAULT_SCOPE = "";
 
   private static final String USER_INFO_URL =
-      "https://www1.gsis.gr/oauth2server/userinfo?format=xml";
+      "https://oauth2.gsis.gr/oauth2server/userinfo?format=xml";
 
-  private static final String LOGOUT_URL = "https://www1.gsis.gr/oauth2server/logout/{clientId}/";
+  private static final String LOGOUT_URL = "https://oauth2.gsis.gr/oauth2server/logout/{clientId}/";
 
   public GsisTaxisIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
     super(session, config);
