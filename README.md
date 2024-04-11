@@ -25,11 +25,11 @@ You must acquire separate permission (separate `clientId`) for each specific app
 
 ## Installation
 
-**Quick**: Download the [latest jar release](https://github.com/cti-nts/keycloak-gsis-providers/releases/latest) from the Releases page. Then deploy it into the `$KEYCLOAK_HOME/standalone/deployments/` directory.
+**Quick**: Download the [latest jar release](https://github.com/cti-nts/keycloak-gsis-providers/releases) from the Releases page. Then deploy it into the `$KEYCLOAK_HOME/standalone/deployments/` directory.
 
 You will need a functional Keycloak deployment. You can read the [Keycloak getting started guide](https://www.keycloak.org/docs/latest/getting_started/) for instructions on setting up a Keycloak instance. You can also [run Keycloak as a Docker Container](https://www.keycloak.org/getting-started/getting-started-docker), or deploy Keycloak on Kubernetes via [plain manifest](https://www.keycloak.org/getting-started/getting-started-kube) or using the [Keycloak Operator](https://www.keycloak.org/getting-started/getting-started-operator-kubernetes).
 
-After having set up Keycloak, download [the latest Keycloak Gsis Providers release](https://github.com/cti-nts/keycloak-gsis-providers/releases/latest) jar and install it to your instance. See the [Keycloak server installation documentation](https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure) for more information. You can also easily [deploy the extension through the Operator Keycloak Manifest](https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions) if you are using the Keycloak Operator on Kubernetes.
+After having set up Keycloak, download [the latest Keycloak Gsis Providers release](https://github.com/cti-nts/keycloak-gsis-providers/releases) jar and install it to your instance. See the [Keycloak server installation documentation](https://www.keycloak.org/docs/latest/server_installation/index.html#distribution-directory-structure) for more information. You can also easily [deploy the extension through the Operator Keycloak Manifest](https://www.keycloak.org/docs/latest/server_installation/index.html#_operator-extensions) if you are using the Keycloak Operator on Kubernetes.
 
 After successfully installing the extension the following options will be available through "Identity Providers" → "Add Provider" Keycloak administration console menu:
 
