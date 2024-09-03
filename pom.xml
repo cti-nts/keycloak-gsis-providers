@@ -38,7 +38,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.4.2</version>
           <configuration>
             <archive>
               <!-- This is required since we need to add the jboss module references to the
@@ -54,7 +54,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.12.1</version>
+          <version>3.13.0</version>
           <configuration>
             <source>${java.version}</source>
             <target>${java.version}</target>
