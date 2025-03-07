@@ -57,6 +57,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.jbosslog.JBossLog;
+import gr.cti.nts.keycloak.idp.social.gsis.AuditRecord;
+import jakarta.persistence.EntityManager;
+import org.keycloak.connections.jpa.DefaultJpaConnectionProvider;
 
 @JBossLog
 public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider
@@ -142,6 +145,19 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
             userFields.put("fathername", attributes.getValue("fathername"));
             userFields.put("mothername", attributes.getValue("mothername"));
             userFields.put("birthyear", attributes.getValue("birthyear"));
+
+            // Get EntityManager from Keycloak’s Default JPA Provider
+            EntityManager entityManager = session.getProvider(DefaultJpaConnectionProvider.class).getEntityManager();
+
+            // Create a new AuditRecord
+            AuditRecord auditRecord = new AuditRecord();
+            auditRecord.setUserId(attributes.getValue("userid"));
+            auditRecord.setIp(session.getContext().getConnection().getRemoteAddr());
+
+            // Persist into Keycloak's database
+            entityManager.getTransaction().begin();
+            entityManager.persist(auditRecord);
+            entityManager.getTransaction().commit();
           }
         }
       });
