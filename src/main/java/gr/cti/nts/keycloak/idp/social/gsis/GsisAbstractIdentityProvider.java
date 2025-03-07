@@ -72,6 +72,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     super(session, config);
     config.setAuthorizationUrl(getAuthUrl());
     config.setTokenUrl(getTokenUrl());
+    logger.error("CONSTRUCTOR");
   }
 
   protected abstract String getAuthUrl();
@@ -118,10 +119,14 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   @Override
   protected BrokeredIdentityContext doGetFederatedIdentity(String accessToken) {
+
+    logger.error("FIRST");
+
     String profileUrl = getUserInfoUrl();
     String jsonStringProfile = "";
 
     try {
+      logger.error("SECOND");
       SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
       String profile = request.header("Authorization", "Bearer " + accessToken).asString();
 
@@ -138,6 +143,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
           if ("userinfo".equals(qName)) {
+            logger.error("THIRD");
             userFields.put("userid", attributes.getValue("userid"));
             userFields.put("taxid", attributes.getValue("taxid"));
             userFields.put("lastname", attributes.getValue("lastname"));
@@ -177,7 +183,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
       ObjectMapper mapper = new ObjectMapper();
       JsonNode jsonProfile = mapper.readTree(jsonStringProfile);
-
+      logger.error("FOURTH");
       return extractIdentityFromProfile(null, jsonProfile);
     } catch (Exception e) {
       throw new IdentityBrokerException(
