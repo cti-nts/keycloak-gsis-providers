@@ -26,8 +26,8 @@
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.java.package>gr.cti.nts</main.java.package>
-    <keycloak.version>22.0.5</keycloak.version>
-    <lombok.version>1.18.38</lombok.version>
+    <keycloak.version>26.4.7</keycloak.version>
+    <lombok.version>1.18.42</lombok.version>
     <auto-service.version>1.1.1</auto-service.version>
   </properties>
 
@@ -38,7 +38,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.4.2</version>
+          <version>3.5.0</version>
           <configuration>
             <archive>
               <!-- This is required since we need to add the jboss module references to the
@@ -54,7 +54,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.14.0</version>
+          <version>3.14.1</version>
           <configuration>
             <source>${java.version}</source>
             <target>${java.version}</target>
@@ -99,7 +99,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.6.2</version>
           <executions>
             <execution>
               <goals>
