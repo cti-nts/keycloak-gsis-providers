@@ -27,7 +27,7 @@ import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
-import org.keycloak.broker.provider.util.SimpleHttp;
+
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.events.Errors;
@@ -91,6 +91,41 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     return true;
   }
 
+  /**
+   * Create a BrokeredIdentityContext using reflection to handle API differences.
+   * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config)
+   * Newer API: new BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
+   */
+  private BrokeredIdentityContext createBrokeredIdentityContext(
+      OAuth2IdentityProviderConfig config, String username) {
+    try {
+      // Try new constructor: BrokeredIdentityContext(IdentityProviderModel)
+      try {
+        java.lang.reflect.Constructor<?> constructor = BrokeredIdentityContext.class
+            .getConstructor(org.keycloak.models.IdentityProviderModel.class);
+        return (BrokeredIdentityContext) constructor.newInstance(config);
+      } catch (NoSuchMethodException e) {
+        // Fall back to old constructor: BrokeredIdentityContext(String)
+        java.lang.reflect.Constructor<?> constructor = BrokeredIdentityContext.class
+            .getConstructor(String.class);
+        BrokeredIdentityContext context = (BrokeredIdentityContext) constructor.newInstance(username);
+        
+        // Try to call setIdpConfig if it exists
+        try {
+          java.lang.reflect.Method setIdpConfigMethod = BrokeredIdentityContext.class
+              .getMethod("setIdpConfig", OAuth2IdentityProviderConfig.class);
+          setIdpConfigMethod.invoke(context, config);
+        } catch (NoSuchMethodException ex) {
+          // Method doesn't exist in this version, ignore
+        }
+        
+        return context;
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create BrokeredIdentityContext", e);
+    }
+  }
+
   @Override
   protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event,
       JsonNode profile) {
@@ -98,14 +133,13 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String firstname = getJsonProperty(profile, "firstname");
     String lastname = getJsonProperty(profile, "lastname");
 
-    BrokeredIdentityContext user = new BrokeredIdentityContext(username);
     OAuth2IdentityProviderConfig config = getConfig();
+    BrokeredIdentityContext user = createBrokeredIdentityContext(config, username);
 
     user.setUsername(username);
     user.setFirstName(firstname);
     user.setLastName(lastname);
     user.setEmail("");
-    user.setIdpConfig(config);
     user.setIdp(this);
 
     AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile, config.getAlias());
@@ -119,8 +153,9 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String jsonStringProfile = "";
 
     try {
-      SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
-      String profile = request.header("Authorization", "Bearer " + accessToken).asString();
+      Object request = SimpleHttpAdapter.doGet(profileUrl, session);
+      request = SimpleHttpAdapter.header(request, "Authorization", "Bearer " + accessToken);
+      String profile = SimpleHttpAdapter.asString(request);
 
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
       parserFactory.setValidating(false);
@@ -201,12 +236,6 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       super(callback, realm, event, provider);
     }
 
-    @Override
-    public SimpleHttp generateTokenRequest(String authorizationCode) {
-      SimpleHttp simpleHttp = super.generateTokenRequest(authorizationCode);
-      return simpleHttp;
-    }
-
     @GET
     @Path("logout_response")
     public Response logoutResponse(@QueryParam("state") String state) {
@@ -260,20 +289,27 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String clientSecret = config.getClientSecret();
 
     try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(clientSecret)) {
-      return getRefreshTokenRequest(session, refreshToken, config.getClientId(),
-          vaultStringSecret.get().orElse(clientSecret)).asString();
-    } catch (IOException e) {
+      Object request = buildRefreshTokenRequest(session, refreshToken, config.getClientId(),
+          vaultStringSecret.get().orElse(clientSecret));
+      return SimpleHttpAdapter.asString(request);
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected SimpleHttp getRefreshTokenRequest(KeycloakSession session, String refreshToken,
+  /**
+   * Build a refresh token request.
+   * Returns Object instead of specific type to handle API differences between Keycloak versions.
+   */
+  protected Object buildRefreshTokenRequest(KeycloakSession session, String refreshToken,
       String clientId, String clientSecret) {
-    SimpleHttp refreshTokenRequest = SimpleHttp.doPost(getConfig().getTokenUrl(), session)
-        .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
-        .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
-
-    return authenticateTokenRequest(refreshTokenRequest);
+    Object refreshTokenRequest = SimpleHttpAdapter.doPost(getConfig().getTokenUrl(), session);
+    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "refresh_token", refreshToken);
+    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "grant_type", "refresh_token");
+    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_id", clientId);
+    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_secret", clientSecret);
+    
+    return refreshTokenRequest;
   }
 
   @Override
