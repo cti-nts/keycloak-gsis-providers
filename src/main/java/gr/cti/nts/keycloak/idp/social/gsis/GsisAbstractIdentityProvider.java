@@ -59,8 +59,8 @@ import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
-public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider
-    implements SocialIdentityProvider {
+public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig>
+    implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
 
@@ -197,7 +197,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   protected class OIDCEndpoint extends Endpoint {
     public OIDCEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event,
-        AbstractOAuth2IdentityProvider provider) {
+        AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig> provider) {
       super(callback, realm, event, provider);
     }
 
