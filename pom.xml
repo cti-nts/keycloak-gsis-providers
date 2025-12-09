@@ -24,6 +24,7 @@
 
   <properties>
     <java.version>17</java.version>
+    <build.java>${java.version}</build.java>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.java.package>gr.cti.nts</main.java.package>
     <keycloak.version>22.0.5</keycloak.version>
@@ -32,6 +33,7 @@
   </properties>
 
   <build>
+    <finalName>${project.artifactId}-java-${build.java}-v${project.version}</finalName>
     <sourceDirectory>src/main/java</sourceDirectory>
     <pluginManagement>
       <plugins>

@@ -35,16 +35,16 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build
-        run: mvn -B -Djava.version=${{ matrix.java }} package --file pom.xml
+      - name: Extract version
+        id: version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
-      - name: Rename jar file
-        run: |
-          mv target/keycloak-gsis-providers-1.0.0-SNAPSHOT.jar target/keycloak-gsis-providers-java-${{ matrix.java }}-v1.0.0-SNAPSHOT.jar
+      - name: Build
+        run: mvn -B package -Djava.version=${{ matrix.java }} -Dbuild.java=${{ matrix.java }}
 
       - name: Upload jar file
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: keycloak-gsis-providers-java-${{ matrix.java }}
-          path: target/keycloak-gsis-providers-java-${{ matrix.java }}-v1.0.0-SNAPSHOT.jar
+          name: keycloak-gsis-providers-java-${{ matrix.java }}-v${{ steps.version.outputs.version }}
+          path: target/keycloak-gsis-providers-java-${{ matrix.java }}-v*.jar
           if-no-files-found: error
