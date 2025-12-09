@@ -36,7 +36,7 @@ jobs:
           cache: maven
 
       - name: Build
-        run: mvn -B package --file pom.xml
+        run: mvn -B -Djava.version=${{ matrix.java }} package --file pom.xml
 
       - name: Rename jar file
         run: |
