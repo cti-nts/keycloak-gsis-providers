@@ -23,6 +23,7 @@ import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 import com.google.auto.service.AutoService;
 
+@SuppressWarnings("rawtypes")
 @AutoService(SocialIdentityProviderFactory.class)
 public class GsisGovuserIdentityProviderFactory
     extends AbstractIdentityProviderFactory<GsisGovuserIdentityProvider>
