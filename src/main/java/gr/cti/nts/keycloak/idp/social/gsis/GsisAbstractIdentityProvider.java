@@ -195,7 +195,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     return userSession.getNote(FEDERATED_ID_TOKEN);
   }
 
-  protected class OIDCEndpoint extends Endpoint {
+  protected static class OIDCEndpoint extends Endpoint {
     public OIDCEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event,
         AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig> provider) {
       super(callback, realm, event, provider);
