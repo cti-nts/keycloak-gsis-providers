@@ -63,6 +63,46 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
+  
+  // Cache API detection results to avoid repeated reflection
+  private static final boolean USE_NEW_CONTEXT_API;
+  private static final java.lang.reflect.Constructor<?> CONTEXT_CONSTRUCTOR;
+  private static final java.lang.reflect.Method SET_IDP_CONFIG_METHOD;
+  
+  static {
+    boolean useNewApi = false;
+    java.lang.reflect.Constructor<?> constructor = null;
+    java.lang.reflect.Method setIdpConfigMethod = null;
+    
+    try {
+      // Try new API: BrokeredIdentityContext(IdentityProviderModel)
+      constructor = BrokeredIdentityContext.class
+          .getConstructor(org.keycloak.models.IdentityProviderModel.class);
+      useNewApi = true;
+      log.infof("Using new BrokeredIdentityContext(IdentityProviderModel) constructor");
+    } catch (NoSuchMethodException e) {
+      // Fall back to old API: BrokeredIdentityContext(String)
+      try {
+        constructor = BrokeredIdentityContext.class.getConstructor(String.class);
+        log.infof("Using old BrokeredIdentityContext(String) constructor");
+        
+        // Check if setIdpConfig method exists
+        try {
+          setIdpConfigMethod = BrokeredIdentityContext.class
+              .getMethod("setIdpConfig", OAuth2IdentityProviderConfig.class);
+          log.infof("setIdpConfig method available");
+        } catch (NoSuchMethodException ex) {
+          log.infof("setIdpConfig method not available");
+        }
+      } catch (NoSuchMethodException ex) {
+        throw new RuntimeException("Could not find any compatible BrokeredIdentityContext constructor", ex);
+      }
+    }
+    
+    USE_NEW_CONTEXT_API = useNewApi;
+    CONTEXT_CONSTRUCTOR = constructor;
+    SET_IDP_CONFIG_METHOD = setIdpConfigMethod;
+  }
 
   public GsisAbstractIdentityProvider(KeycloakSession session,
       OAuth2IdentityProviderConfig config) {
@@ -92,37 +132,32 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   }
 
   /**
-   * Create a BrokeredIdentityContext using reflection to handle API differences.
+   * Create a BrokeredIdentityContext using cached constructor/method references.
+   * API detection happens once at class load time, not at runtime.
    * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config)
    * Newer API: new BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
    */
   private BrokeredIdentityContext createBrokeredIdentityContext(
       OAuth2IdentityProviderConfig config, String username) {
     try {
-      // Try new constructor: BrokeredIdentityContext(IdentityProviderModel)
-      try {
-        java.lang.reflect.Constructor<?> constructor = BrokeredIdentityContext.class
-            .getConstructor(org.keycloak.models.IdentityProviderModel.class);
-        return (BrokeredIdentityContext) constructor.newInstance(config);
-      } catch (NoSuchMethodException e) {
-        // Fall back to old constructor: BrokeredIdentityContext(String)
-        java.lang.reflect.Constructor<?> constructor = BrokeredIdentityContext.class
-            .getConstructor(String.class);
-        BrokeredIdentityContext context = (BrokeredIdentityContext) constructor.newInstance(username);
+      BrokeredIdentityContext context;
+      
+      if (USE_NEW_CONTEXT_API) {
+        // New API: BrokeredIdentityContext(IdentityProviderModel)
+        context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(config);
+      } else {
+        // Old API: BrokeredIdentityContext(String)
+        context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(username);
         
-        // Try to call setIdpConfig if it exists
-        try {
-          java.lang.reflect.Method setIdpConfigMethod = BrokeredIdentityContext.class
-              .getMethod("setIdpConfig", OAuth2IdentityProviderConfig.class);
-          setIdpConfigMethod.invoke(context, config);
-        } catch (NoSuchMethodException ex) {
-          // Method doesn't exist in this version, ignore
+        // Call setIdpConfig if the method exists
+        if (SET_IDP_CONFIG_METHOD != null) {
+          SET_IDP_CONFIG_METHOD.invoke(context, config);
         }
-        
-        return context;
       }
+      
+      return context;
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create BrokeredIdentityContext", e);
+      throw new RuntimeException("Failed to create BrokeredIdentityContext for username: " + username, e);
     }
   }
 

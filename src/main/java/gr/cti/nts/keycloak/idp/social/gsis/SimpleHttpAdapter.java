@@ -39,22 +39,32 @@ public class SimpleHttpAdapter {
   
   private static Class<?> httpClass;
   private static boolean isNewApi;
+  private static Method getMethod;
+  private static Method postMethod;
   
   static {
-    // Try new API first
+    // Detect API version once at class load time
     try {
       httpClass = Class.forName(NEW_CLASS);
       isNewApi = true;
       log.infof("Using new SimpleHttpRequest API from %s", NEW_CLASS);
+      // Cache method references for new API
+      getMethod = httpClass.getMethod("get", String.class, KeycloakSession.class);
+      postMethod = httpClass.getMethod("post", String.class, KeycloakSession.class);
     } catch (ClassNotFoundException e) {
       // Fall back to old API
       try {
         httpClass = Class.forName(OLD_CLASS);
         isNewApi = false;
         log.infof("Using old SimpleHttp API from %s", OLD_CLASS);
-      } catch (ClassNotFoundException ex) {
-        throw new RuntimeException("Could not find SimpleHttp API class", ex);
+        // Cache method references for old API
+        getMethod = httpClass.getMethod("doGet", String.class, KeycloakSession.class);
+        postMethod = httpClass.getMethod("doPost", String.class, KeycloakSession.class);
+      } catch (ClassNotFoundException | NoSuchMethodException ex) {
+        throw new RuntimeException("Could not find SimpleHttp API class or methods", ex);
       }
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException("Could not find required methods in SimpleHttpRequest API", e);
     }
   }
   
@@ -67,17 +77,9 @@ public class SimpleHttpAdapter {
    */
   public static Object doGet(String url, KeycloakSession session) {
     try {
-      if (isNewApi) {
-        // New API: SimpleHttpRequest.get(url, session)
-        Method getMethod = httpClass.getMethod("get", String.class, KeycloakSession.class);
-        return getMethod.invoke(null, url, session);
-      } else {
-        // Old API: SimpleHttp.doGet(url, session)
-        Method doGetMethod = httpClass.getMethod("doGet", String.class, KeycloakSession.class);
-        return doGetMethod.invoke(null, url, session);
-      }
+      return getMethod.invoke(null, url, session);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create GET request", e);
+      throw new RuntimeException("Failed to create GET request for URL: " + url, e);
     }
   }
   
@@ -90,17 +92,9 @@ public class SimpleHttpAdapter {
    */
   public static Object doPost(String url, KeycloakSession session) {
     try {
-      if (isNewApi) {
-        // New API: SimpleHttpRequest.post(url, session)
-        Method postMethod = httpClass.getMethod("post", String.class, KeycloakSession.class);
-        return postMethod.invoke(null, url, session);
-      } else {
-        // Old API: SimpleHttp.doPost(url, session)
-        Method doPostMethod = httpClass.getMethod("doPost", String.class, KeycloakSession.class);
-        return doPostMethod.invoke(null, url, session);
-      }
+      return postMethod.invoke(null, url, session);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create POST request", e);
+      throw new RuntimeException("Failed to create POST request for URL: " + url, e);
     }
   }
   
