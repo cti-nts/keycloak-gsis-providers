@@ -27,7 +27,8 @@ import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
-import org.keycloak.broker.provider.util.SimpleHttp;
+import org.keycloak.http.simple.SimpleHttp;
+import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.events.Errors;
@@ -98,14 +99,13 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String firstname = getJsonProperty(profile, "firstname");
     String lastname = getJsonProperty(profile, "lastname");
 
-    BrokeredIdentityContext user = new BrokeredIdentityContext(username);
     OAuth2IdentityProviderConfig config = getConfig();
+    BrokeredIdentityContext user = new BrokeredIdentityContext(username, config);
 
     user.setUsername(username);
     user.setFirstName(firstname);
     user.setLastName(lastname);
     user.setEmail("");
-    user.setIdpConfig(config);
     user.setIdp(this);
 
     AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile, config.getAlias());
@@ -119,7 +119,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String jsonStringProfile = "";
 
     try {
-      SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
+      SimpleHttpRequest request = SimpleHttp.create(session).doGet(profileUrl);
       String profile = request.header("Authorization", "Bearer " + accessToken).asString();
 
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
@@ -202,9 +202,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     }
 
     @Override
-    public SimpleHttp generateTokenRequest(String authorizationCode) {
-      SimpleHttp simpleHttp = super.generateTokenRequest(authorizationCode);
-      return simpleHttp;
+    public SimpleHttpRequest generateTokenRequest(String authorizationCode) {
+      return super.generateTokenRequest(authorizationCode);
     }
 
     @GET
@@ -267,9 +266,10 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     }
   }
 
-  protected SimpleHttp getRefreshTokenRequest(KeycloakSession session, String refreshToken,
+  protected SimpleHttpRequest getRefreshTokenRequest(KeycloakSession session, String refreshToken,
       String clientId, String clientSecret) {
-    SimpleHttp refreshTokenRequest = SimpleHttp.doPost(getConfig().getTokenUrl(), session)
+    SimpleHttpRequest refreshTokenRequest = SimpleHttp.create(session)
+        .doPost(getConfig().getTokenUrl())
         .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
         .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
 
