@@ -58,7 +58,8 @@ import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
-public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig>
+public abstract class GsisAbstractIdentityProvider
+    extends AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig>
     implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
@@ -87,14 +88,15 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
         // Check if setIdpConfig method exists
         try {
-          setIdpConfigMethod = BrokeredIdentityContext.class
-              .getMethod("setIdpConfig", OAuth2IdentityProviderConfig.class);
+          setIdpConfigMethod = BrokeredIdentityContext.class.getMethod("setIdpConfig",
+              OAuth2IdentityProviderConfig.class);
           log.infof("setIdpConfig method available");
         } catch (NoSuchMethodException ex) {
           log.infof("setIdpConfig method not available");
         }
       } catch (NoSuchMethodException ex) {
-        throw new RuntimeException("Could not find any compatible BrokeredIdentityContext constructor", ex);
+        throw new RuntimeException(
+            "Could not find any compatible BrokeredIdentityContext constructor", ex);
       }
     }
 
@@ -131,13 +133,14 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   }
 
   /**
-   * Create a BrokeredIdentityContext using cached constructor/method references.
-   * API detection happens once at class load time, not at runtime.
-   * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config)
-   * Newer API: new BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
+   * Create a BrokeredIdentityContext using cached constructor/method references. API detection
+   * happens once at class load time, not at runtime.
+   *
+   * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config) Newer API: new
+   * BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
    */
-  private BrokeredIdentityContext createBrokeredIdentityContext(
-      OAuth2IdentityProviderConfig config, String username) {
+  private BrokeredIdentityContext createBrokeredIdentityContext(OAuth2IdentityProviderConfig config,
+      String username) {
     try {
       BrokeredIdentityContext context;
 
@@ -156,7 +159,8 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
       return context;
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create BrokeredIdentityContext for username: " + username, e);
+      throw new RuntimeException(
+          "Failed to create BrokeredIdentityContext for username: " + username, e);
     }
   }
 
@@ -332,16 +336,19 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
   }
 
   /**
-   * Build a refresh token request.
-   * Returns Object instead of specific type to handle API differences between Keycloak versions.
+   * Build a refresh token request. Returns Object instead of specific type to handle API
+   * differences between Keycloak versions.
    */
   protected Object buildRefreshTokenRequest(KeycloakSession session, String refreshToken,
       String clientId, String clientSecret) {
     Object refreshTokenRequest = SimpleHttpAdapter.doPost(getConfig().getTokenUrl(), session);
-    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "refresh_token", refreshToken);
-    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "grant_type", "refresh_token");
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "refresh_token", refreshToken);
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "grant_type", "refresh_token");
     refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_id", clientId);
-    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_secret", clientSecret);
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "client_secret", clientSecret);
 
     return refreshTokenRequest;
   }

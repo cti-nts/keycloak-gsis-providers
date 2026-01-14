@@ -22,31 +22,27 @@ import lombok.extern.jbosslog.JBossLog;
 
 /**
  * Runtime adapter for SimpleHttp API differences between Keycloak versions.
- * 
- * Older API (Keycloak <= 22.x):
- * - org.keycloak.broker.provider.util.SimpleHttp
- * - static doGet/doPost methods returning SimpleHttp
- * 
- * Newer API (Keycloak >= 24.x):
- * - org.keycloak.http.simple.SimpleHttpRequest
- * - static get/post methods returning SimpleHttpRequest
+ *
+ * Older API (Keycloak <= 22.x): - org.keycloak.broker.provider.util.SimpleHttp - static
+ * doGet/doPost methods returning SimpleHttp
+ *
+ * Newer API (Keycloak >= 24.x): - org.keycloak.http.simple.SimpleHttpRequest - static get/post
+ * methods returning SimpleHttpRequest
  */
 @JBossLog
 public class SimpleHttpAdapter {
 
   private static final String OLD_CLASS = "org.keycloak.broker.provider.util.SimpleHttp";
   private static final String NEW_CLASS = "org.keycloak.http.simple.SimpleHttpRequest";
-  
+
   private static Class<?> httpClass;
-  private static boolean isNewApi;
   private static Method getMethod;
   private static Method postMethod;
-  
+
   static {
     // Detect API version once at class load time
     try {
       httpClass = Class.forName(NEW_CLASS);
-      isNewApi = true;
       log.infof("Using new SimpleHttpRequest API from %s", NEW_CLASS);
       // Cache method references for new API
       getMethod = httpClass.getMethod("get", String.class, KeycloakSession.class);
@@ -55,7 +51,6 @@ public class SimpleHttpAdapter {
       // Fall back to old API
       try {
         httpClass = Class.forName(OLD_CLASS);
-        isNewApi = false;
         log.infof("Using old SimpleHttp API from %s", OLD_CLASS);
         // Cache method references for old API
         getMethod = httpClass.getMethod("doGet", String.class, KeycloakSession.class);
@@ -67,10 +62,10 @@ public class SimpleHttpAdapter {
       throw new RuntimeException("Could not find required methods in SimpleHttpRequest API", e);
     }
   }
-  
+
   /**
    * Create a GET request adapter.
-   * 
+   *
    * @param url The URL to GET
    * @param session The Keycloak session
    * @return Request object (SimpleHttp or SimpleHttpRequest)
@@ -82,10 +77,10 @@ public class SimpleHttpAdapter {
       throw new RuntimeException("Failed to create GET request for URL: " + url, e);
     }
   }
-  
+
   /**
    * Create a POST request adapter.
-   * 
+   *
    * @param url The URL to POST to
    * @param session The Keycloak session
    * @return Request object (SimpleHttp or SimpleHttpRequest)
@@ -97,10 +92,10 @@ public class SimpleHttpAdapter {
       throw new RuntimeException("Failed to create POST request for URL: " + url, e);
     }
   }
-  
+
   /**
    * Add a header to the request.
-   * 
+   *
    * @param request Request object
    * @param name Header name
    * @param value Header value
@@ -114,10 +109,10 @@ public class SimpleHttpAdapter {
       throw new RuntimeException("Failed to set header", e);
     }
   }
-  
+
   /**
    * Add a parameter to the request.
-   * 
+   *
    * @param request Request object
    * @param name Parameter name
    * @param value Parameter value
@@ -131,10 +126,10 @@ public class SimpleHttpAdapter {
       throw new RuntimeException("Failed to set parameter", e);
     }
   }
-  
+
   /**
    * Execute the request and return the response as a string.
-   * 
+   *
    * @param request Request object
    * @return Response body as string
    */
