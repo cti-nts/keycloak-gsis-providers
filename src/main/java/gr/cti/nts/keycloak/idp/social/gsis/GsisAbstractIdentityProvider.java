@@ -62,17 +62,17 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
-  
+
   // Cache API detection results to avoid repeated reflection
   private static final boolean USE_NEW_CONTEXT_API;
   private static final java.lang.reflect.Constructor<?> CONTEXT_CONSTRUCTOR;
   private static final java.lang.reflect.Method SET_IDP_CONFIG_METHOD;
-  
+
   static {
     boolean useNewApi = false;
     java.lang.reflect.Constructor<?> constructor = null;
     java.lang.reflect.Method setIdpConfigMethod = null;
-    
+
     try {
       // Try new API: BrokeredIdentityContext(IdentityProviderModel)
       constructor = BrokeredIdentityContext.class
@@ -84,7 +84,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       try {
         constructor = BrokeredIdentityContext.class.getConstructor(String.class);
         log.infof("Using old BrokeredIdentityContext(String) constructor");
-        
+
         // Check if setIdpConfig method exists
         try {
           setIdpConfigMethod = BrokeredIdentityContext.class
@@ -97,7 +97,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
         throw new RuntimeException("Could not find any compatible BrokeredIdentityContext constructor", ex);
       }
     }
-    
+
     USE_NEW_CONTEXT_API = useNewApi;
     CONTEXT_CONSTRUCTOR = constructor;
     SET_IDP_CONFIG_METHOD = setIdpConfigMethod;
@@ -140,20 +140,20 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       OAuth2IdentityProviderConfig config, String username) {
     try {
       BrokeredIdentityContext context;
-      
+
       if (USE_NEW_CONTEXT_API) {
         // New API: BrokeredIdentityContext(IdentityProviderModel)
         context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(config);
       } else {
         // Old API: BrokeredIdentityContext(String)
         context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(username);
-        
+
         // Call setIdpConfig if the method exists
         if (SET_IDP_CONFIG_METHOD != null) {
           SET_IDP_CONFIG_METHOD.invoke(context, config);
         }
       }
-      
+
       return context;
     } catch (Exception e) {
       throw new RuntimeException("Failed to create BrokeredIdentityContext for username: " + username, e);
@@ -342,7 +342,7 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "grant_type", "refresh_token");
     refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_id", clientId);
     refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_secret", clientSecret);
-    
+
     return refreshTokenRequest;
   }
 
