@@ -1,0 +1,1 @@
+docker run --rm   -v "$PWD":/build -w /build   maven:3.9.6-eclipse-temurin-17   mvn -DskipTests package
