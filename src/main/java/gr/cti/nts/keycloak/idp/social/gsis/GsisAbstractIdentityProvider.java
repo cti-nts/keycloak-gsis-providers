@@ -27,7 +27,6 @@ import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
-import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.events.Errors;
@@ -59,10 +58,52 @@ import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
-public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig>
+public abstract class GsisAbstractIdentityProvider
+    extends AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig>
     implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
+
+  // Cache API detection results to avoid repeated reflection
+  private static final boolean USE_NEW_CONTEXT_API;
+  private static final java.lang.reflect.Constructor<?> CONTEXT_CONSTRUCTOR;
+  private static final java.lang.reflect.Method SET_IDP_CONFIG_METHOD;
+
+  static {
+    boolean useNewApi = false;
+    java.lang.reflect.Constructor<?> constructor = null;
+    java.lang.reflect.Method setIdpConfigMethod = null;
+
+    try {
+      // Try new API: BrokeredIdentityContext(IdentityProviderModel)
+      constructor = BrokeredIdentityContext.class
+          .getConstructor(org.keycloak.models.IdentityProviderModel.class);
+      useNewApi = true;
+      log.infof("Using new BrokeredIdentityContext(IdentityProviderModel) constructor");
+    } catch (NoSuchMethodException e) {
+      // Fall back to old API: BrokeredIdentityContext(String)
+      try {
+        constructor = BrokeredIdentityContext.class.getConstructor(String.class);
+        log.infof("Using old BrokeredIdentityContext(String) constructor");
+
+        // Check if setIdpConfig method exists
+        try {
+          setIdpConfigMethod = BrokeredIdentityContext.class.getMethod("setIdpConfig",
+              OAuth2IdentityProviderConfig.class);
+          log.infof("setIdpConfig method available");
+        } catch (NoSuchMethodException ex) {
+          log.infof("setIdpConfig method not available");
+        }
+      } catch (NoSuchMethodException ex) {
+        throw new RuntimeException(
+            "Could not find any compatible BrokeredIdentityContext constructor", ex);
+      }
+    }
+
+    USE_NEW_CONTEXT_API = useNewApi;
+    CONTEXT_CONSTRUCTOR = constructor;
+    SET_IDP_CONFIG_METHOD = setIdpConfigMethod;
+  }
 
   public GsisAbstractIdentityProvider(KeycloakSession session,
       OAuth2IdentityProviderConfig config) {
@@ -91,6 +132,38 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     return true;
   }
 
+  /**
+   * Create a BrokeredIdentityContext using cached constructor/method references. API detection
+   * happens once at class load time, not at runtime.
+   *
+   * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config) Newer API: new
+   * BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
+   */
+  private BrokeredIdentityContext createBrokeredIdentityContext(OAuth2IdentityProviderConfig config,
+      String username) {
+    try {
+      BrokeredIdentityContext context;
+
+      if (USE_NEW_CONTEXT_API) {
+        // New API: BrokeredIdentityContext(IdentityProviderModel)
+        context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(config);
+      } else {
+        // Old API: BrokeredIdentityContext(String)
+        context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(username);
+
+        // Call setIdpConfig if the method exists
+        if (SET_IDP_CONFIG_METHOD != null) {
+          SET_IDP_CONFIG_METHOD.invoke(context, config);
+        }
+      }
+
+      return context;
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Failed to create BrokeredIdentityContext for username: " + username, e);
+    }
+  }
+
   @Override
   protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event,
       JsonNode profile) {
@@ -98,14 +171,13 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String firstname = getJsonProperty(profile, "firstname");
     String lastname = getJsonProperty(profile, "lastname");
 
-    BrokeredIdentityContext user = new BrokeredIdentityContext(username);
     OAuth2IdentityProviderConfig config = getConfig();
+    BrokeredIdentityContext user = createBrokeredIdentityContext(config, username);
 
     user.setUsername(username);
     user.setFirstName(firstname);
     user.setLastName(lastname);
     user.setEmail("");
-    user.setIdpConfig(config);
     user.setIdp(this);
 
     AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile, config.getAlias());
@@ -119,8 +191,9 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String jsonStringProfile = "";
 
     try {
-      SimpleHttp request = SimpleHttp.doGet(profileUrl, session);
-      String profile = request.header("Authorization", "Bearer " + accessToken).asString();
+      Object request = SimpleHttpAdapter.doGet(profileUrl, session);
+      request = SimpleHttpAdapter.header(request, "Authorization", "Bearer " + accessToken);
+      String profile = SimpleHttpAdapter.asString(request);
 
       SAXParserFactory parserFactory = SAXParserFactory.newInstance();
       parserFactory.setValidating(false);
@@ -201,12 +274,6 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
       super(callback, realm, event, provider);
     }
 
-    @Override
-    public SimpleHttp generateTokenRequest(String authorizationCode) {
-      SimpleHttp simpleHttp = super.generateTokenRequest(authorizationCode);
-      return simpleHttp;
-    }
-
     @GET
     @Path("logout_response")
     public Response logoutResponse(@QueryParam("state") String state) {
@@ -260,20 +327,30 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
     String clientSecret = config.getClientSecret();
 
     try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(clientSecret)) {
-      return getRefreshTokenRequest(session, refreshToken, config.getClientId(),
-          vaultStringSecret.get().orElse(clientSecret)).asString();
-    } catch (IOException e) {
+      Object request = buildRefreshTokenRequest(session, refreshToken, config.getClientId(),
+          vaultStringSecret.get().orElse(clientSecret));
+      return SimpleHttpAdapter.asString(request);
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected SimpleHttp getRefreshTokenRequest(KeycloakSession session, String refreshToken,
+  /**
+   * Build a refresh token request. Returns Object instead of specific type to handle API
+   * differences between Keycloak versions.
+   */
+  protected Object buildRefreshTokenRequest(KeycloakSession session, String refreshToken,
       String clientId, String clientSecret) {
-    SimpleHttp refreshTokenRequest = SimpleHttp.doPost(getConfig().getTokenUrl(), session)
-        .param(OAUTH2_GRANT_TYPE_REFRESH_TOKEN, refreshToken)
-        .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_REFRESH_TOKEN);
+    Object refreshTokenRequest = SimpleHttpAdapter.doPost(getConfig().getTokenUrl(), session);
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "refresh_token", refreshToken);
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "grant_type", "refresh_token");
+    refreshTokenRequest = SimpleHttpAdapter.param(refreshTokenRequest, "client_id", clientId);
+    refreshTokenRequest =
+        SimpleHttpAdapter.param(refreshTokenRequest, "client_secret", clientSecret);
 
-    return authenticateTokenRequest(refreshTokenRequest);
+    return refreshTokenRequest;
   }
 
   @Override
