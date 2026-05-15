@@ -18,6 +18,7 @@ package gr.cti.nts.keycloak.idp.social.gsis;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.parsers.SAXParser;
@@ -29,18 +30,12 @@ import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
-import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
-import org.keycloak.events.EventType;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.services.ErrorPage;
 import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.messages.Messages;
-import org.keycloak.services.resources.IdentityBrokerService;
-import org.keycloak.services.resources.RealmsResource;
 import org.keycloak.util.JsonSerialization;
 import org.keycloak.vault.VaultStringSecret;
 import org.xml.sax.Attributes;
@@ -49,9 +44,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import gr.cti.nts.keycloak.idp.social.gsis.resource.GsisLogoutResource;
+import gr.cti.nts.keycloak.idp.social.gsis.resource.GsisLogoutResourceProviderFactory;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
@@ -68,16 +62,18 @@ public abstract class GsisAbstractIdentityProvider
   private static final boolean USE_NEW_CONTEXT_API;
   private static final java.lang.reflect.Constructor<?> CONTEXT_CONSTRUCTOR;
   private static final java.lang.reflect.Method SET_IDP_CONFIG_METHOD;
+  private static final java.lang.reflect.Method SET_IDP_METHOD;
 
   static {
     boolean useNewApi = false;
-    java.lang.reflect.Constructor<?> constructor = null;
+    java.lang.reflect.Constructor<?> constructor;
     java.lang.reflect.Method setIdpConfigMethod = null;
+    java.lang.reflect.Method setIdpMethod = null;
 
     try {
       // Try new API: BrokeredIdentityContext(IdentityProviderModel)
       constructor = BrokeredIdentityContext.class
-          .getConstructor(org.keycloak.models.IdentityProviderModel.class);
+        .getConstructor(org.keycloak.models.IdentityProviderModel.class);
       useNewApi = true;
       log.infof("Using new BrokeredIdentityContext(IdentityProviderModel) constructor");
     } catch (NoSuchMethodException e) {
@@ -85,24 +81,31 @@ public abstract class GsisAbstractIdentityProvider
       try {
         constructor = BrokeredIdentityContext.class.getConstructor(String.class);
         log.infof("Using old BrokeredIdentityContext(String) constructor");
-
-        // Check if setIdpConfig method exists
-        try {
-          setIdpConfigMethod = BrokeredIdentityContext.class.getMethod("setIdpConfig",
-              OAuth2IdentityProviderConfig.class);
-          log.infof("setIdpConfig method available");
-        } catch (NoSuchMethodException ex) {
-          log.infof("setIdpConfig method not available");
-        }
       } catch (NoSuchMethodException ex) {
-        throw new RuntimeException(
-            "Could not find any compatible BrokeredIdentityContext constructor", ex);
+        throw new RuntimeException("Could not find any compatible BrokeredIdentityContext constructor", ex);
       }
+    }
+
+    // Detect setIdpConfig(IdentityProviderModel)
+    try {
+      setIdpConfigMethod = BrokeredIdentityContext.class.getMethod("setIdpConfig", org.keycloak.models.IdentityProviderModel.class);
+      log.infof("Detected setIdpConfig(IdentityProviderModel) method");
+    } catch (NoSuchMethodException e) {
+      log.infof("setIdpConfig method NOT available on this Keycloak version (Modern Keycloak logic applies)");
+    }
+
+    // Detect setIdp(IdentityProvider) - Was removed in v25.
+    try {
+      setIdpMethod = BrokeredIdentityContext.class.getMethod("setIdp", org.keycloak.broker.provider.IdentityProvider.class);
+      log.infof("Detected setIdp(IdentityProvider) method");
+    } catch (NoSuchMethodException e) {
+      log.infof("setIdp method NOT available on this Keycloak version (Modern Keycloak logic applies)");
     }
 
     USE_NEW_CONTEXT_API = useNewApi;
     CONTEXT_CONSTRUCTOR = constructor;
     SET_IDP_CONFIG_METHOD = setIdpConfigMethod;
+    SET_IDP_METHOD = setIdpMethod;
   }
 
   public GsisAbstractIdentityProvider(KeycloakSession session,
@@ -139,8 +142,7 @@ public abstract class GsisAbstractIdentityProvider
    * Older API: new BrokeredIdentityContext(String id) + setIdpConfig(config) Newer API: new
    * BrokeredIdentityContext(IdentityProviderModel) - no setIdpConfig
    */
-  private BrokeredIdentityContext createBrokeredIdentityContext(OAuth2IdentityProviderConfig config,
-      String username) {
+  private BrokeredIdentityContext createBrokeredIdentityContext(OAuth2IdentityProviderConfig config, String username) {
     try {
       BrokeredIdentityContext context;
 
@@ -150,17 +152,17 @@ public abstract class GsisAbstractIdentityProvider
       } else {
         // Old API: BrokeredIdentityContext(String)
         context = (BrokeredIdentityContext) CONTEXT_CONSTRUCTOR.newInstance(username);
+      }
 
-        // Call setIdpConfig if the method exists
-        if (SET_IDP_CONFIG_METHOD != null) {
-          SET_IDP_CONFIG_METHOD.invoke(context, config);
-        }
+      // Call setIdpConfig if the method exists
+      if (SET_IDP_CONFIG_METHOD != null) {
+        SET_IDP_CONFIG_METHOD.invoke(context, config);
       }
 
       return context;
     } catch (Exception e) {
       throw new RuntimeException(
-          "Failed to create BrokeredIdentityContext for username: " + username, e);
+        "Failed to create BrokeredIdentityContext for username: " + username, e);
     }
   }
 
@@ -174,11 +176,21 @@ public abstract class GsisAbstractIdentityProvider
     OAuth2IdentityProviderConfig config = getConfig();
     BrokeredIdentityContext user = createBrokeredIdentityContext(config, username);
 
+    user.setId(username);
     user.setUsername(username);
     user.setFirstName(firstname);
     user.setLastName(lastname);
     user.setEmail("");
-    user.setIdp(this);
+
+    if (SET_IDP_METHOD != null) {
+      try {
+        SET_IDP_METHOD.invoke(user, this);
+      } catch (Exception e) {
+        log.warn("Failed to call setIdp via reflection", e);
+      }
+    }
+    // In new versions, setIdp is not needed because the IDP is
+    // linked via the IdentityProviderModel passed in the constructor.
 
     AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, profile, config.getAlias());
 
@@ -273,44 +285,6 @@ public abstract class GsisAbstractIdentityProvider
         AbstractOAuth2IdentityProvider<OAuth2IdentityProviderConfig> provider) {
       super(callback, realm, event, provider);
     }
-
-    @GET
-    @Path("logout_response")
-    public Response logoutResponse(@QueryParam("state") String state) {
-      if (state == null) {
-        logger.error("no state parameter returned");
-        EventBuilder event = new EventBuilder(realm, session, clientConnection);
-        event.event(EventType.LOGOUT);
-        event.error(Errors.USER_SESSION_NOT_FOUND);
-
-        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
-            Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
-      }
-
-      UserSessionModel userSession = session.sessions().getUserSession(realm, state);
-      if (userSession == null) {
-        logger.error("no valid user session");
-        EventBuilder event = new EventBuilder(realm, session, clientConnection);
-        event.event(EventType.LOGOUT);
-        event.error(Errors.USER_SESSION_NOT_FOUND);
-
-        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
-            Messages.IDENTITY_PROVIDER_UNEXPECTED_ERROR);
-      }
-
-      if (userSession.getState() != UserSessionModel.State.LOGGING_OUT) {
-        logger.error("usersession in different state");
-        EventBuilder event = new EventBuilder(realm, session, clientConnection);
-        event.event(EventType.LOGOUT);
-        event.error(Errors.USER_SESSION_NOT_FOUND);
-
-        return ErrorPage.error(session, null, Response.Status.BAD_REQUEST,
-            Messages.SESSION_NOT_ACTIVE);
-      }
-
-      return AuthenticationManager.finishBrowserLogout(session, realm, userSession,
-          session.getContext().getUri(), clientConnection, headers);
-    }
   }
 
   /**
@@ -355,28 +329,42 @@ public abstract class GsisAbstractIdentityProvider
 
   @Override
   public Response keycloakInitiatedBrowserLogout(KeycloakSession session,
-      UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
-    log.infof("keycloakInitiatedBrowserLogout");
-    String logoutUrl = getLogoutUrl();
+                                                 UserSessionModel userSession, UriInfo uriInfo, RealmModel realm) {
 
-    if (logoutUrl == null || logoutUrl.trim().length() == 0) {
+    String logoutUrl = getLogoutUrl();
+    if (logoutUrl == null || logoutUrl.trim().isEmpty()) {
       return null;
     }
 
-    String idToken = getIDTokenForLogout(session, userSession);
-    String sessionId = userSession.getId();
-    UriBuilder logoutUri = UriBuilder.fromUri(logoutUrl).queryParam("state", sessionId);
+    log.infof("Initiating GSIS logout for user session: %s", userSession.getId());
 
+    OAuth2IdentityProviderConfig config = getConfig();
+    String sessionId = userSession.getId();
+    String idToken = getIDTokenForLogout(session, userSession);
+
+    // Point GSIS at a RealmResourceProvider endpoint that completes the Keycloak-side logout.
+    // We can't use a @Path subresource on OIDCEndpoint here because Keycloak 24+ (Quarkus REST)
+    // doesn't route subclass @Path methods returned from IdentityBrokerService.getEndpoint(),
+    // even with a Jandex index. RealmResourceProvider gives us a first-class top-level path.
+    // NOTE: GSIS validates `url=` against the registered redirect URI. If GSIS does strict
+    // prefix-matching (only paths under /broker/{alias}/endpoint), this URL will be rejected
+    // and the user will fall back to the registered redirect URI as before. In that case,
+    // the registered URL with GSIS needs to be widened, or use the authResponse-override path.
+    String redirectUri = UriBuilder.fromUri(uriInfo.getBaseUri())
+        .path("realms").path(realm.getName())
+        .path(GsisLogoutResourceProviderFactory.ID)
+        .path(GsisLogoutResource.LOGOUT_RESPONSE_PATH)
+        .queryParam("state", sessionId)
+        .build()
+        .toString();
+
+    UriBuilder logoutUri = UriBuilder.fromUri(logoutUrl).queryParam("state", sessionId);
     if (idToken != null) {
       logoutUri.queryParam("id_token_hint", idToken);
     }
+    logoutUri.queryParam("url", redirectUri);
+    URI builtUri = logoutUri.build(config.getClientId());
 
-    OAuth2IdentityProviderConfig config = getConfig();
-    String redirect = RealmsResource.brokerUrl(uriInfo)
-        .path(IdentityBrokerService.class, "getEndpoint").path(OIDCEndpoint.class, "logoutResponse")
-        .queryParam("state", sessionId).build(realm.getName(), config.getAlias()).toString();
-    logoutUri.queryParam("url", redirect);
-
-    return Response.status(302).location(logoutUri.build(config.getClientId())).build();
+    return Response.status(302).location(builtUri).build();
   }
 }

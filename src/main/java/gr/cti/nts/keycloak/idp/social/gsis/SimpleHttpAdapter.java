@@ -26,35 +26,43 @@ import lombok.extern.jbosslog.JBossLog;
  * Older API (Keycloak <= 22.x): - org.keycloak.broker.provider.util.SimpleHttp - static
  * doGet/doPost methods returning SimpleHttp
  *
- * Newer API (Keycloak >= 24.x): - org.keycloak.http.simple.SimpleHttpRequest - static get/post
- * methods returning SimpleHttpRequest
+ * Newer API (Keycloak >= 24.x): - org.keycloak.http.simple.SimpleHttp - static get/post
+ * methods returning SimpleHttp
  */
 @JBossLog
 public class SimpleHttpAdapter {
 
   private static final String OLD_CLASS = "org.keycloak.broker.provider.util.SimpleHttp";
-  private static final String NEW_CLASS = "org.keycloak.http.simple.SimpleHttpRequest";
+  private static final String NEW_CLASS = "org.keycloak.http.simple.SimpleHttp";
 
   private static Class<?> httpClass;
+  private static Method factoryMethod; // For new API: SimpleHttp.create(session)
   private static Method getMethod;
   private static Method postMethod;
+  private static boolean isNewApi = false;
 
   static {
     // Detect API version once at class load time
     try {
+      // Try New API (Keycloak 24+)
       httpClass = Class.forName(NEW_CLASS);
-      log.infof("Using new SimpleHttpRequest API from %s", NEW_CLASS);
-      // Cache method references for new API
-      getMethod = httpClass.getMethod("get", String.class, KeycloakSession.class);
-      postMethod = httpClass.getMethod("post", String.class, KeycloakSession.class);
+      log.infof("Using new SimpleHttp API at %s", NEW_CLASS);
+
+      // New API uses: SimpleHttp.create(session).doGet(url)
+      factoryMethod = httpClass.getMethod("create", KeycloakSession.class);
+      getMethod = httpClass.getMethod("doGet", String.class);
+      postMethod = httpClass.getMethod("doPost", String.class);
+      isNewApi = true;
     } catch (ClassNotFoundException e) {
       // Fall back to old API
       try {
         httpClass = Class.forName(OLD_CLASS);
-        log.infof("Using old SimpleHttp API from %s", OLD_CLASS);
-        // Cache method references for old API
+        log.infof("Using old SimpleHttp API at %s", OLD_CLASS);
+
+        // Old API uses: SimpleHttp.doGet(url, session)
         getMethod = httpClass.getMethod("doGet", String.class, KeycloakSession.class);
         postMethod = httpClass.getMethod("doPost", String.class, KeycloakSession.class);
+        isNewApi = false;
       } catch (ClassNotFoundException | NoSuchMethodException ex) {
         throw new RuntimeException("Could not find SimpleHttp API class or methods", ex);
       }
@@ -72,7 +80,14 @@ public class SimpleHttpAdapter {
    */
   public static Object doGet(String url, KeycloakSession session) {
     try {
-      return getMethod.invoke(null, url, session);
+      if (isNewApi) {
+        // Instance method call: SimpleHttp.create(session).doGet(url)
+        Object instance = factoryMethod.invoke(null, session);
+        return getMethod.invoke(instance, url);
+      } else {
+        // Static method call: SimpleHttp.doGet(url, session)
+        return getMethod.invoke(null, url, session);
+      }
     } catch (Exception e) {
       throw new RuntimeException("Failed to create GET request for URL: " + url, e);
     }
@@ -87,7 +102,12 @@ public class SimpleHttpAdapter {
    */
   public static Object doPost(String url, KeycloakSession session) {
     try {
-      return postMethod.invoke(null, url, session);
+      if (isNewApi) {
+        Object instance = factoryMethod.invoke(null, session);
+        return postMethod.invoke(instance, url);
+      } else {
+        return postMethod.invoke(null, url, session);
+      }
     } catch (Exception e) {
       throw new RuntimeException("Failed to create POST request for URL: " + url, e);
     }
