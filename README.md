@@ -10,8 +10,25 @@ This [Keycloak](https://www.keycloak.org/) plugin adds production and testing id
 
 - [TAXISnet OAuth2.0 authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20) testing environment (gsis-taxis-test)
 - [TAXISnet OAuth2.0 authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20) production environment (gsis-taxis)
+- [TAXISnet OAuth2.0 OTP authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20) testing environment (gsis-taxis-otp-test)
+- [TAXISnet OAuth2.0 OTP authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oauth20) production environment (gsis-taxis-otp)
 - [Employees OAuth2.0 authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA) testing environment (gsis-govuser-test)
 - [Employees OAuth2.0 authentication service](https://www.gsis.gr/dimosia-dioikisi/ked/webservices/oAuth2.0.PA) production environment (gsis-govuser)
+
+### Service endpoints
+
+Each provider talks to a fixed base URL. The OTP services sit on the same hosts as the standard ones, under a different context root.
+
+| Provider | Base URL |
+| --- | --- |
+| gsis-taxis | `https://oauth2.gsis.gr/oauth2server` |
+| gsis-taxis-test | `https://test.gsis.gr/oauth2server` |
+| gsis-taxis-otp | `https://oauth2.gsis.gr/oauth2serverotp` |
+| gsis-taxis-otp-test | `https://test.gsis.gr/oauth2serverpilototp` |
+| gsis-govuser | `https://oauth2.gsis.gr/oauth2servergov` |
+| gsis-govuser-test | `https://test.gsis.gr/oauth2servergov` |
+
+The `/oauth/authorize`, `/oauth/token`, `/userinfo` and `/logout` endpoints hang off these.
 
 ## How to get permissions for using Gsis OAuth 2.0 authentication services for your application
 
@@ -35,6 +52,8 @@ After successfully installing the extension the following options will be availa
 
 - GsisTaxisTest (TAXISnet testing)
 - GsisTaxis (TAXISnet production)
+- GsisTaxisOtpTest (TAXISnet OTP testing)
+- GsisTaxisOtp (TAXISnet OTP production)
 - GsisGovuserTest (Employees testing)
 - GsisGovUser (Employees production)
 
@@ -42,6 +61,7 @@ After successfully installing the extension the following options will be availa
 
 - Add the Gsis Identity Provider you want to use in the realm which you want to configure.
 - In the Gsis identity provider page, set "Client Id" and "Client Secret".
+- The OTP variants need their own KE.D enrollment. A `clientId` issued for the standard TAXISnet service will not work against gsis-taxis-otp or gsis-taxis-otp-test.
 - (Optional) Set the alias for the provider and other options if you want.
 - (Optional) Set up provider mappers (See [profile fields](#profile-fields))
 

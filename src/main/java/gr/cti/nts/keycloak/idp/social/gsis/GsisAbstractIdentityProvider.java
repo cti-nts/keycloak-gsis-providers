@@ -64,22 +64,36 @@ public abstract class GsisAbstractIdentityProvider extends AbstractOAuth2Identit
 
   public static final String FEDERATED_ID_TOKEN = "FEDERATED_ID_TOKEN";
 
+  private static final String AUTH_PATH = "/oauth/authorize";
+
+  private static final String TOKEN_PATH = "/oauth/token";
+
+  private static final String USER_INFO_PATH = "/userinfo?format=xml";
+
+  private static final String LOGOUT_PATH = "/logout/{clientId}/";
+
+  /** Scheme, host and context root of the Gsis service, without a trailing slash. */
+  private final String baseUrl;
+
   public GsisAbstractIdentityProvider(KeycloakSession session,
-      OAuth2IdentityProviderConfig config) {
+      OAuth2IdentityProviderConfig config, String baseUrl) {
     super(session, config);
-    config.setAuthorizationUrl(getAuthUrl());
-    config.setTokenUrl(getTokenUrl());
+    this.baseUrl = baseUrl;
+    config.setAuthorizationUrl(baseUrl + AUTH_PATH);
+    config.setTokenUrl(baseUrl + TOKEN_PATH);
   }
 
-  protected abstract String getAuthUrl();
-
-  protected abstract String getTokenUrl();
-
+  // Has to stay a method. AbstractOAuth2IdentityProvider's constructor calls
+  // getDefaultScopes() before our constructor body runs, so a field would read null.
   protected abstract String getDefaultScope();
 
-  protected abstract String getUserInfoUrl();
+  protected final String getUserInfoUrl() {
+    return baseUrl + USER_INFO_PATH;
+  }
 
-  protected abstract String getLogoutUrl();
+  protected final String getLogoutUrl() {
+    return baseUrl + LOGOUT_PATH;
+  }
 
   @Override
   public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {

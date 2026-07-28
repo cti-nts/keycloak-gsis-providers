@@ -28,7 +28,9 @@ public class GsisUserAttributeMapper extends AbstractJsonUserAttributeMapper {
       new String[] {GsisGovuserTestIdentityProviderFactory.PROVIDER_ID,
           GsisGovuserIdentityProviderFactory.PROVIDER_ID,
           GsisTaxisTestIdentityProviderFactory.PROVIDER_ID,
-          GsisTaxisIdentityProviderFactory.PROVIDER_ID};
+          GsisTaxisIdentityProviderFactory.PROVIDER_ID,
+          GsisTaxisOtpTestIdentityProviderFactory.PROVIDER_ID,
+          GsisTaxisOtpIdentityProviderFactory.PROVIDER_ID};
 
   @Override
   public String[] getCompatibleProviders() {
